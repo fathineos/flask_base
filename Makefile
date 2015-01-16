@@ -36,6 +36,12 @@ coverage:
 pep8:
 	PYTHONPATH=`pwd` env/bin/pep8 -r $(APPLICATION_DIR)
 
+migrate: _clean
+	PYTHONPATH=`pwd` env/bin/alembic --config base/alembic.ini upgrade head
+
+migrate_test_environment: _clean
+	APPLICATION_ENV=test PYTHONPATH=`pwd` env/bin/alembic --config base/alembic.ini upgrade head
+
 _install_system_dependencies:
 	@echo "\n\n>> Installing system dependencies \n\n"
 	./scripts/install_system_dependencies.sh

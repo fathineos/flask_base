@@ -5,6 +5,8 @@
 *.py[cod]
 *.so
 *.swp
+*.mako
+
 .download_cache
 .DS_Store
 .idea
