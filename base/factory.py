@@ -2,6 +2,7 @@ from sys import prefix
 from flask import Flask
 from os.path import abspath, dirname, join
 
+
 DB = None
 
 ENVIRONMENT_PRODUCTION = "production"
@@ -9,6 +10,7 @@ ENVIRONMENT_DEVELOPMENT = "development"
 ENVIRONMENT_TESTING = "testing"
 
 BASEPATH = abspath(dirname(__file__))
+
 
 def create_app(package_name, forced_environment=None):
     """
@@ -42,8 +44,8 @@ def create_app(package_name, forced_environment=None):
     )
 
     _app_configs(app, forced_environment)
-    _register_blueprints(app)
     _register_additional_packages(app)
+    _register_blueprints(app)
     return app
 
 
@@ -62,7 +64,8 @@ def _app_configs(app, forced_environment):
     app.config.from_object(default)
 
     app.environment = _get_environment(app, forced_environment)
-    config_file_path = join(BASEPATH, "app/configs/{}.py".format(app.environment))
+    config_file_path = join(BASEPATH,
+                            "app/configs/{}.py".format(app.environment))
     app.config.from_pyfile(config_file_path, silent=True)
 
 
