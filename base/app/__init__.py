@@ -1,7 +1,7 @@
 from base.factory import create_app
 
 
-def create(forced_environment=None):
+def create(basepath=None, forced_environment=None):
     """
     Instantiate and return flask app from factory
 
@@ -11,4 +11,6 @@ def create(forced_environment=None):
     :return: flask.app.Flask -- The flask application object created with
     corresponding configuration
     """
-    return create_app(__name__, forced_environment)
+    return create_app(package_name=__name__,
+                      basepath=basepath,
+                      forced_environment=forced_environment)

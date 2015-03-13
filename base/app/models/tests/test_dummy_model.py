@@ -1,4 +1,4 @@
-from base.testing import TestCase
+from base.lib.testing import TestCase
 
 
 class TestDummyModel(TestCase):

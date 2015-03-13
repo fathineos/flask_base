@@ -1,4 +1,5 @@
 coverage
+Flask-Script
 mock==1.0.1
 nose
 pep8>=1.5.6

@@ -1,3 +1,7 @@
+"""
+Simple example database model
+"""
+
 from base.lib.abstract_sql_model import AbstractSqlModel
 from base.factory import DB
 

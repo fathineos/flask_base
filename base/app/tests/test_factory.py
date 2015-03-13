@@ -1,8 +1,12 @@
 from os import environ
+from os.path import abspath, dirname, split
 from flask import Flask
-from base.testing import TestCase
+from base.lib.testing import TestCase
 from base.factory import create_app, _get_environment, _init_sql_db,\
     ENVIRONMENT_DEVELOPMENT, ENVIRONMENT_TESTING
+
+
+BASEPATH = split(split(abspath(dirname(__file__)))[0])[0]
 
 
 class TestFactory(TestCase):
@@ -17,21 +21,27 @@ class TestFactory(TestCase):
         self.assertIsInstance(flask_app, Flask)
 
     def test_get_application_env_when_override_variable_is_set(self):
+
         flask_app = create_app(package_name="base.app")
-        result_env = _get_environment(flask_app,
-                                      forced_environment=ENVIRONMENT_TESTING)
+        result_env = _get_environment(app=flask_app,
+                                      forced_environment=ENVIRONMENT_TESTING,
+                                      basepath=BASEPATH)
         self.assertEqual(ENVIRONMENT_TESTING, result_env)
 
     def test_get_application_env_when_os_environment_variable_is_not_set(self):
         flask_app = create_app(package_name="base.app")
         self.assertEqual(ENVIRONMENT_DEVELOPMENT,
-                         _get_environment(flask_app, None))
+                         _get_environment(app=flask_app,
+                                          forced_environment=None,
+                                          basepath=BASEPATH))
 
     def test_get_application_env_when_os_environment_variable_is_set(self):
         flask_app = create_app(package_name="base.app")
         environ["APPLICATION_ENV"] = ENVIRONMENT_TESTING
         self.assertEqual(ENVIRONMENT_TESTING,
-                         _get_environment(flask_app, None))
+                         _get_environment(app=flask_app,
+                                          forced_environment=None,
+                                          basepath=BASEPATH))
 
     def test_app_configs_registered_proper_configuration_packages(self):
         from sys import modules
@@ -72,3 +82,10 @@ class TestFactory(TestCase):
         test_flask_app.config["PACKAGE_SQLALCHEMY_ENABLED"] = False
         _init_sql_db(test_flask_app)
         self.assertFalse(hasattr(test_flask_app, 'DB'))
+
+    def test_registered_blueprints(self):
+        flask_app = create_app(package_name="base.app")
+        from base.app.controllers.front_controller import blueprints
+        app_blueprints = [name for name in flask_app.blueprints.keys()]
+        for blueprint in blueprints:
+            self.assertTrue(blueprint.name in app_blueprints)

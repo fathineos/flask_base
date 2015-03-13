@@ -1,3 +1,7 @@
+"""
+Simple example of controller
+"""
+
 from flask import Blueprint
 
 

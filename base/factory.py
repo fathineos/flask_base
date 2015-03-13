@@ -1,6 +1,6 @@
 from sys import prefix
+from os.path import join
 from flask import Flask
-from os.path import abspath, dirname, join
 
 
 DB = None
@@ -9,10 +9,8 @@ ENVIRONMENT_PRODUCTION = "production"
 ENVIRONMENT_DEVELOPMENT = "development"
 ENVIRONMENT_TESTING = "testing"
 
-BASEPATH = abspath(dirname(__file__))
 
-
-def create_app(package_name, forced_environment=None):
+def create_app(package_name, basepath=None, forced_environment=None):
     """
     Main application factory for the flask application bootstrap. Creates a
     flask application object and configures all its required parameters and
@@ -43,13 +41,22 @@ def create_app(package_name, forced_environment=None):
         static_folder='public'
     )
 
-    _app_configs(app, forced_environment)
+    if not basepath:
+        basepath = _get_basepath()
+
+    _app_configs(app, forced_environment, basepath)
     _register_additional_packages(app)
-    _register_blueprints(app)
+    from base.app.controllers.front_controller import blueprints
+    _register_blueprints(app, blueprints)
     return app
 
 
-def _app_configs(app, forced_environment):
+def _get_basepath():
+    from os.path import abspath, dirname
+    return abspath(dirname(__file__))
+
+
+def _app_configs(app, forced_environment, basepath):
     """Initialize application configuration based on environment. Combines the
     default configuration with environmental specific
 
@@ -63,13 +70,15 @@ def _app_configs(app, forced_environment):
     from base.app.configs import default
     app.config.from_object(default)
 
-    app.environment = _get_environment(app, forced_environment)
-    config_file_path = join(BASEPATH,
+    app.environment = _get_environment(app,
+                                       forced_environment,
+                                       basepath)
+    config_file_path = join(basepath,
                             "app/configs/{}.py".format(app.environment))
     app.config.from_pyfile(config_file_path, silent=True)
 
 
-def _get_environment(app, forced_environment):
+def _get_environment(app, forced_environment, basepath):
     if forced_environment:
         return forced_environment
 
@@ -79,14 +88,13 @@ def _get_environment(app, forced_environment):
         return environment_variable
 
     application_id_path = app.config.get("APPLICATION_ID_PATH")
-    with open(join(BASEPATH, application_id_path)) as appid:
+    with open(join(basepath, application_id_path)) as appid:
         env = appid.read().strip()
 
     return env
 
 
-def _register_blueprints(app):
-    from base.app.front_controller import blueprints
+def _register_blueprints(app, blueprints):
     for blueprint in blueprints:
         app.register_blueprint(blueprint)
 

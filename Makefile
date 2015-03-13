@@ -3,6 +3,8 @@
 APPLICATION_DIR=base
 VIRTUALENV?=virtualenv
 
+all: setup_development_environment setup_environment
+
 setup_environment: _install_system_dependencies _create_virtualenvironment _install_application_dependencies _generate_production_configuration_files _bootstrap_database
 
 setup_development_environment: setup_environment _install_development_application_dependencies _generate_development_configuration_files _bootstrap_development_database
@@ -29,16 +31,16 @@ pep8:
 	PYTHONPATH=`pwd` env/bin/pep8 -r $(APPLICATION_DIR)
 
 migrate: _clean
-	PYTHONPATH=`pwd` env/bin/alembic --config base/alembic.ini upgrade head
+	PYTHONPATH=`pwd` env/bin/alembic --config base/app/configs/alembic.ini upgrade head
 
 migrate_test_environment: _clean
-	APPLICATION_ENV=test PYTHONPATH=`pwd` env/bin/alembic --config base/alembic.ini upgrade head
+	APPLICATION_ENV=test PYTHONPATH=`pwd` env/bin/alembic --config base/app/configs/alembic.ini upgrade head
 
 _bootstrap_database:
-	PYTHONPATH=`pwd` env/bin/python ./scripts/bootstrap_database.py
+	PYTHONPATH=`pwd` env/bin/python ./scripts/bootstrap_database.py base.app
 
 _bootstrap_development_database:
-	APPLICATION_ENV=testing PYTHONPATH=`pwd` env/bin/python ./scripts/bootstrap_database.py
+	APPLICATION_ENV=testing PYTHONPATH=`pwd` env/bin/python ./scripts/bootstrap_database.py base.app
 
 _create_virtualenvironment:
 	rm -rf ./env

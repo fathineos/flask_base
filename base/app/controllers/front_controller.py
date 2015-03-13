@@ -2,6 +2,6 @@
 be registered to app in factory on app initialization
 """
 
-from base.app.modules.interface.controller import interface
+from base.app.controllers.interface import interface
 
 blueprints = [interface]

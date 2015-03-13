@@ -5,7 +5,7 @@
 *.py[cod]
 *.so
 *.swp
-*.mako
+*.egg-info/
 
 .download_cache
 .DS_Store
