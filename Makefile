@@ -24,8 +24,8 @@ shell: _clean
 tests:
 	PYTHONPATH=`pwd` env/bin/nosetests $(APPLICATION_DIR)
 
-coverage:
-	PYTHONPATH=`pwd` env/bin/coverage --ignore-errors -m -r $(APPLICATION_DIR)/*
+test_coverage:
+	PYTHONPATH=`pwd` env/bin/nosetests --with-coverage --cover-erase --cover-package=$(APPLICATION_DIR)
 
 pep8:
 	PYTHONPATH=`pwd` env/bin/pep8 -r $(APPLICATION_DIR)

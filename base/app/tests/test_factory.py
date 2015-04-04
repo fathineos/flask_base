@@ -50,7 +50,8 @@ class TestFactory(TestCase):
         self.assertIn("base.app.configs.default", modules)
         self.assertIn("base.app.configs.testing", modules)
 
-    def test_get_sql_db_load_sqlalchemy_package_when_configured_accordingly(self):
+    def test_get_sql_db_load_sqlalchemy_package_when_configured_accordingly(
+            self):
         from sys import prefix, modules
         from flask_sqlalchemy import SQLAlchemy
 

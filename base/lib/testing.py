@@ -14,8 +14,21 @@ class TestCase(unittest.TestCase):
             basepath = split(abspath(dirname(__file__)))[0]
             app = create(forced_environment="testing", basepath=basepath)
         self.app = app
+        self.app.testing = True
         self.app_context = self.app.app_context()
         self.app_context.push()
 
     def tearDown(self):
         self.app_context.pop()
+
+
+class ControllerTestCase(TestCase):
+    def setUp(self, app=None):
+        super(ControllerTestCase, self).setUp(app=app)
+        self.app_request_context = self.app.test_request_context(
+            content_type="application/json")
+        self.app_request_context.push()
+
+    def tearDown(self):
+        self.app_request_context.pop()
+        super(ControllerTestCase, self).tearDown()
