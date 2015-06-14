@@ -21,7 +21,7 @@ run: _clean
 shell: _clean
 	PYTHONPATH=`pwd` env/bin/python $(APPLICATION_DIR)/run.py shell
 
-tests:
+test:
 	PYTHONPATH=`pwd` env/bin/nosetests $(APPLICATION_DIR)
 
 test_coverage:
