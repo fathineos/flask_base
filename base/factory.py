@@ -46,6 +46,7 @@ def create_app(package_name, basepath=None, forced_environment=None):
 
     _app_configs(app, forced_environment, basepath)
     _register_additional_packages(app)
+    _register_exception_error_handler(app)
     from base.app.controllers.front_controller import blueprints
     _register_blueprints(app, blueprints)
     return app
@@ -97,6 +98,25 @@ def _get_environment(app, forced_environment, basepath):
 def _register_blueprints(app, blueprints):
     for blueprint in blueprints:
         app.register_blueprint(blueprint)
+
+
+def _register_exception_error_handler(application):
+    """
+    Registers our custom exception and error handlers as default handlers to
+    the created flask application to handle all errors and exceptions raised
+    and properly transform them to json formatted api responses.
+
+    :param application: The flask application object
+    :type application: flask.app.Flask
+    :return:
+    """
+    from base import exception_handler
+    for exception in exception_handler.exceptions.default_exceptions:
+        application.register_error_handler(exception,
+                                           exception_handler.error_handler)
+
+    application.register_error_handler(Exception,
+                                       exception_handler.error_handler)
 
 
 def _register_additional_packages(app):

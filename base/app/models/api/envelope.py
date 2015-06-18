@@ -1,4 +1,4 @@
-from .exceptions import InvalidEnvelopeException, InvalidEnvelopeParamException
+from .exceptions import InvalidEnvelopeException, InvalidEnvelopeParamException, ApiException
 
 
 class Envelope(object):
@@ -14,11 +14,12 @@ class Envelope(object):
             "message": message,
         }
         self._errors.append(error)
+        return self
 
     def set_error_from_exception(self, e):
-        if not (isinstance(e, Exception)):
+        if not (isinstance(e, ApiException)):
             raise InvalidEnvelopeParamException
-        return self.set_error(e.code, e.description)
+        return self.append_error(e.code, e.description)
 
     def get_errors(self):
         return self._errors
@@ -27,12 +28,14 @@ class Envelope(object):
         if not (isinstance(code, int)):
             raise InvalidEnvelopeParamException
         self._code = code
+        return self
 
     def get_code(self):
         return self._code
 
     def set_results(self, results):
         self._results = results
+        return self
 
     def get_results(self):
         return self._results
@@ -41,6 +44,7 @@ class Envelope(object):
         if not (isinstance(message, str)):
             raise InvalidEnvelopeParamException
         self._message = message
+        return self
 
     def get_message(self):
         return self._message

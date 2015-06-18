@@ -1,5 +1,6 @@
 from base.lib.testing import TestCase
 from base.app.models.api.envelope import Envelope
+from base.app.models.api.exceptions import ApiValidationException
 
 
 class TestEnvelope(TestCase):
@@ -24,7 +25,7 @@ class TestEnvelope(TestCase):
         envelope.set_code(111)
         self.assertEquals(111, envelope.get_code())
 
-    def testSetGetCode(self):
+    def testSetCodeRaisesException(self):
         envelope = Envelope()
         from base.app.models.api.exceptions import InvalidEnvelopeParamException
         with self.assertRaises(InvalidEnvelopeParamException):
@@ -67,3 +68,10 @@ class TestEnvelope(TestCase):
                                     "code": "111",
                                     "errors": []}
         self.assertEquals(expected_envelope_result, envelope.to_dict())
+
+    def testSetErrorFromExceptionAppendsErrorFromAnException(self):
+        envelope = Envelope()
+        api_validation_exc = ApiValidationException()
+        envelope.set_error_from_exception(api_validation_exc)
+
+        self.assertEquals([{"code": api_validation_exc.code, "message": api_validation_exc.description}], envelope.get_errors())

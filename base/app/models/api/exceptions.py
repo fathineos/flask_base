@@ -1,5 +1,6 @@
 class ApiException(Exception):
     code = 1000
+    http_code = 500
     description = "Generic Api Error"
 
     def __init__(self):
@@ -14,3 +15,9 @@ class InvalidEnvelopeException(ApiException):
 class InvalidEnvelopeParamException(ApiException):
     code = 1101
     description = "Invalid Envelope: message type Error"
+
+
+class ApiValidationException(ApiException):
+    code = 2000
+    http_code = 400
+    description = "Api Validation Error"
