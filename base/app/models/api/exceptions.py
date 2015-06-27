@@ -17,6 +17,11 @@ class InvalidEnvelopeParamException(ApiException):
     description = "Invalid Envelope: message type Error"
 
 
+class InvalidEnvelopeResults(ApiException):
+    code = 1102
+    description = "Invalid Envelope Results: cannot stringify results"
+
+
 class ApiValidationException(ApiException):
     code = 2000
     http_code = 400

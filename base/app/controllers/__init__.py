@@ -3,15 +3,15 @@ from flask import jsonify, request
 from werkzeug.exceptions import UnsupportedMediaType
 
 
-# def json_response(f):
-#     """Function decorator that transforms flask route method output to its
-#     corresponding json representation.
-#     :returns str -- json representation of the function's return value
-#     """
-#     @wraps(f)
-#     def json_response_decorator(*args, **kwargs):
-#         return jsonify(f(*args, **kwargs))
-#     return json_response_decorator
+def json_response(f):
+    """Function decorator that transforms flask route method output to its
+    corresponding json representation.
+    :returns str -- json representation of the function's return value
+    """
+    @wraps(f)
+    def json_response_decorator(*args, **kwargs):
+        return jsonify(f(*args, **kwargs))
+    return json_response_decorator
 
 
 def get_parameters_by_method(request):
@@ -21,22 +21,13 @@ def get_parameters_by_method(request):
     :type request: flask.request
     :returns dict -- Contains the request parameters as key value pairs
     """
-    # try:
-    #     request.url_root
-    #     global url_root
-    #     url_root = request.url_root
-    # except AttributeError:
-    #     pass
 
-    parameters = dict(method=None)
-    request_parameters = dict()
-
+    parameters = dict()
     if request.method == "GET":
-        request_parameters = request.args.copy()
+        parameters = request.args.copy()
     elif request.method == "POST":
         #works just for json response
-        request_parameters = request.get_json(silent=True) or dict()
-    parameters.update(request_parameters.iteritems())
+        parameters = request.get_json(silent=True) or dict()
 
     return parameters
 
@@ -45,9 +36,15 @@ def accepts_mimetypes(supported_types):
     def accepts_mimetypes_decorator(func):
         @wraps(func)
         def func_wrapper(*args, **kwargs):
-            if request.content_type not in supported_types:
+            valid = False
+            for supported_type in supported_types:
+                if supported_type in request.content_type:
+                    valid = True
+                    break
+
+            if not valid:
                 error_str = "Content-type must be set to one of the types : %s"\
-                            % str(supported_types)
+                    % str(supported_type)
                 raise UnsupportedMediaType(description=error_str)
             return func(*args, **kwargs)
         return func_wrapper

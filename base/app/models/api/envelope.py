@@ -1,4 +1,5 @@
-from .exceptions import InvalidEnvelopeException, InvalidEnvelopeParamException, ApiException
+from .exceptions import InvalidEnvelopeException, InvalidEnvelopeParamException,\
+    ApiException, InvalidEnvelopeResults
 
 
 class Envelope(object):
@@ -17,7 +18,7 @@ class Envelope(object):
         return self
 
     def set_error_from_exception(self, e):
-        if not (isinstance(e, ApiException)):
+        if not (isinstance(e, Exception)):
             raise InvalidEnvelopeParamException
         return self.append_error(e.code, e.description)
 
