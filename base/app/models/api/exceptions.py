@@ -1,6 +1,5 @@
 class ApiException(Exception):
     code = 1000
-    http_code = 500
     description = "Generic Api Error"
 
     def __init__(self):

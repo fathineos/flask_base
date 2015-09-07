@@ -2,6 +2,18 @@ from werkzeug import exceptions
 from flask import current_app, Response, json
 from base.app.models.api.envelope import Envelope
 from base.app.models.api import exceptions as base_exceptions
+from base.app.models.api.exceptions import ApiException, \
+    InvalidEnvelopeException, ApiValidationInternalException, \
+    ApiRequestFileValidationException, ApiInvalidAccessControlHeader, \
+    InvalidEnvelopeParamException, InvalidEnvelopeResults
+
+ERROR_TO_HTTP_CODE_MAPPING = {ApiException.code: 500,
+                              InvalidEnvelopeException.code: 500,
+                              InvalidEnvelopeParamException.code: 500,
+                              InvalidEnvelopeResults.code: 500,
+                              ApiValidationInternalException.code: 500,
+                              ApiRequestFileValidationException.code: 500,
+                              ApiInvalidAccessControlHeader.code: 500}
 
 
 def error_handler(error):
@@ -22,9 +34,14 @@ def error_handler(error):
     envelope = Envelope().set_error_from_exception(error)
 
     if isinstance(error, base_exceptions.ApiException):
-        error.code = error.http_code
+        try:
+            http_code = ERROR_TO_HTTP_CODE_MAPPING[error.code]
+        except KeyError:
+            http_code = 500
+        else:
+            http_code = 500
 
-    return Response(json.dumps(envelope.to_dict()), status=error.code)
+    return Response(json.dumps(envelope.to_dict()), status=http_code)
 
 
 def check_and_set_default_error_code_and_description(error):

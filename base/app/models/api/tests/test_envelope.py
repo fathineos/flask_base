@@ -1,6 +1,6 @@
 from base.lib.testing import TestCase
 from base.app.models.api.envelope import Envelope
-from base.app.models.api.exceptions import ApiValidationException
+from base.app.models.api.exceptions import ApiException
 
 
 class TestEnvelope(TestCase):
@@ -71,7 +71,7 @@ class TestEnvelope(TestCase):
 
     def testSetErrorFromExceptionAppendsErrorFromAnException(self):
         envelope = Envelope()
-        api_validation_exc = ApiValidationException()
+        api_validation_exc = ApiException()
         envelope.set_error_from_exception(api_validation_exc)
 
         self.assertEquals([{"code": api_validation_exc.code, "message": api_validation_exc.description}], envelope.get_errors())
