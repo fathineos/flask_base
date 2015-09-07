@@ -12,17 +12,26 @@ class InvalidEnvelopeException(ApiException):
     description = "Invalid Envelope: General Error"
 
 
-class InvalidEnvelopeParamException(ApiException):
+class InvalidEnvelopeParamException(InvalidEnvelopeException):
     code = 1101
     description = "Invalid Envelope: message type Error"
 
 
-class InvalidEnvelopeResults(ApiException):
+class InvalidEnvelopeResults(InvalidEnvelopeException):
     code = 1102
     description = "Invalid Envelope Results: cannot stringify results"
 
 
-class ApiValidationException(ApiException):
+class ApiValidationInternalException(ApiException):
     code = 2000
-    http_code = 400
-    description = "Api Validation Error"
+    description = "Api Validation Internal Error"
+
+
+class ApiRequestFileValidationException(ApiException):
+    code = 2101
+    description = "Api Request Validation Error: File Not Valid"
+
+
+class ApiInvalidAccessControlHeader(ApiException):
+    code = 1001
+    description = "Invalid Origin Request Headers"

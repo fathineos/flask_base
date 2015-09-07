@@ -1,6 +1,7 @@
 from functools import wraps
-from flask import jsonify, request
+from flask import g, jsonify, request, current_app
 from werkzeug.exceptions import UnsupportedMediaType
+from base.app.models.api.exceptions import ApiInvalidAccessControlHeader
 
 
 def json_response(f):
@@ -32,6 +33,7 @@ def get_parameters_by_method(request):
     return parameters
 
 
+#move to validators class
 def accepts_mimetypes(supported_types):
     def accepts_mimetypes_decorator(func):
         @wraps(func)
@@ -79,3 +81,37 @@ def jsonify_reponse_object(f):
             raise AttributeError(
                 "Method to_dict() cannot be found for result object.")
     return jsonify_response_decorator
+
+
+def access_control_header(f):
+    @wraps(f)
+    def add_allow_origin(*args, **kwargs):
+        allow_origin_header = _get_allow_origin_header(request)
+        result = f(*args, **kwargs)
+
+        response = result
+        code = None
+        headers = None
+        if isinstance(result, tuple):
+            response, code, headers = result
+
+        if headers:
+            headers.update(allow_origin_header)
+        else:
+            headers = allow_origin_header
+        return response, code, headers
+    return add_allow_origin
+
+
+def _get_allow_origin_header(request):
+    try:
+        domain = request.headers['Origin']
+    except AttributeError, KeyError:
+        raise ApiInvalidAccessControlHeader()
+
+    if domain in current_app.config['ALLOW_ORIGIN_DOMAINS']:
+        g.allow_origin_domain = domain
+    else:
+        raise ApiInvalidAccessControlHeader()
+
+    return {'Access-Control-Allow-Origin': domain}
