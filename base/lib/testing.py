@@ -28,7 +28,8 @@ class TestCase(unittest.TestCase):
     def _import_submodules(self, prerequired_packages):
         for package in prerequired_packages:
             prefix = package.__name__ + "."
-            for importer, modname, ispkg in walk_packages(package.__path__, prefix):
+            for importer, modname, ispkg in walk_packages(package.__path__,
+                                                          prefix):
                 __import__(modname)
 
 

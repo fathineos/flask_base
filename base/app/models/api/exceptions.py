@@ -21,6 +21,11 @@ class InvalidEnvelopeResults(InvalidEnvelopeException):
     description = "Invalid Envelope Results: cannot stringify results"
 
 
+class JsonifyEnvelopeException(ApiException):
+    code = 1103
+    description = "Could not jsonify Envelope"
+
+
 class ApiValidationInternalException(ApiException):
     code = 2000
     description = "Api Validation Internal Error"

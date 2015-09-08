@@ -17,9 +17,9 @@ ERROR_TO_HTTP_CODE_MAPPING = {ApiException.code: 500,
 
 
 def error_handler(error):
-    """Error handle for all exceptions thrown by the application it is registered on.
-    Creates response by converting the error to the relevant json response structure
-    that Base uses.
+    """Error handle for all exceptions thrown by the application it is
+    registered on. Creates response by converting the error to the relevant
+    json response structure that Base uses.
 
     :param error: Any subclass object of Exception class
     :return: flask.Response

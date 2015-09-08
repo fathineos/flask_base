@@ -1,5 +1,6 @@
 from .exceptions import InvalidEnvelopeException, InvalidEnvelopeParamException,\
-    ApiException, InvalidEnvelopeResults
+    JsonifyEnvelopeException
+from json import dumps
 
 
 class Envelope(object):
@@ -60,6 +61,13 @@ class Envelope(object):
             "code": str(self.get_code()),
             "errors": self.get_errors()
         }
+
+    def to_json(self):
+        try:
+            result = dumps(self.to_dict())
+        except TypeError:
+            raise JsonifyEnvelopeException
+        return result
 
     def _is_valid(self):
         if (self.get_results() and self.get_code() and self.get_message())\

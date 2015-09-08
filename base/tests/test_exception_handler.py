@@ -1,8 +1,9 @@
 from base.lib.testing import TestCase
-from base.exception_handler import check_and_set_default_error_code_and_description
+from base.exception_handler import \
+    check_and_set_default_error_code_and_description
 from base.exception_handler import error_handler
 from base.app.models.api.exceptions import ApiException
-from flask import Response
+
 
 class ExceptionHandlerTestCase(TestCase):
 
@@ -18,4 +19,6 @@ class ExceptionHandlerTestCase(TestCase):
         actual_response = error_handler(error)
 
         self.assertEquals("500 INTERNAL SERVER ERROR", actual_response.status)
-        self.assertEquals('{"code": "None", "errors": [{"code": 1000, "message": "Generic Api Error"}], "message": null, "results": null}', actual_response.data)
+        self.assertEquals('{"code": "None", "errors": [{"code": 1000, '
+                          '"message": "Generic Api Error"}], "message": null, '
+                          '"results": null}', actual_response.data)
