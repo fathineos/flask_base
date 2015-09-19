@@ -33,12 +33,11 @@ def error_handler(error):
     check_and_set_default_error_code_and_description(error)
     envelope = Envelope().set_error_from_exception(error)
 
+    http_code = 500
     if isinstance(error, base_exceptions.ApiException):
         try:
             http_code = ERROR_TO_HTTP_CODE_MAPPING[error.code]
         except KeyError:
-            http_code = 500
-        else:
             http_code = 500
 
     return Response(json.dumps(envelope.to_dict()), status=http_code)

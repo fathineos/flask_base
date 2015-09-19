@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 setup(name='base',
       packages=find_packages(),
-      version='0.1.17',
+      version='0.1.18',
       description='flask framework utility library',
       author='Fotis Athinaios',
       author_email='fotanks@gmail.com',
