@@ -1,5 +1,5 @@
 from werkzeug import exceptions
-from flask import current_app, Response, json
+from flask import current_app, Response, json, g
 from base.app.models.api.envelope import Envelope
 from base.app.models.api import exceptions as base_exceptions
 from base.app.models.api.exceptions import ApiException, \
@@ -40,7 +40,15 @@ def error_handler(error):
         except KeyError:
             http_code = 500
 
-    return Response(json.dumps(envelope.to_dict()), status=http_code)
+    try:
+        domain = g.allow_origin_domain
+        headers = {'Access-Control-Allow-Origin': domain}
+    except AttributeError:
+        headers = None
+
+    return Response(json.dumps(json_response),
+                    status=int(http_code),
+                    mimetype='application/json', headers=headers)
 
 
 def check_and_set_default_error_code_and_description(error):
