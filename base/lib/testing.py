@@ -1,5 +1,8 @@
-import unittest
+from os.path import abspath, dirname, split
+from unittest import TestCase as unittestcase
 from pkgutil import walk_packages
+from base.app import create
+
 
 """TestCase class provides provide unit testing functionality. On setUp a new
 flask app is instantiated with testing configuration and a new application
@@ -7,11 +10,9 @@ context is started
 """
 
 
-class TestCase(unittest.TestCase):
+class TestCase(unittestcase):
     def setUp(self, app=None, prerequired_packages=[]):
         if not app:
-            from os.path import abspath, dirname, split
-            from base.app import create
             basepath = split(abspath(dirname(__file__)))[0]
             app = create(forced_environment="testing", basepath=basepath)
         self.app = app
@@ -34,8 +35,10 @@ class TestCase(unittest.TestCase):
 
 
 class ControllerTestCase(TestCase):
-    def setUp(self, app=None):
-        super(ControllerTestCase, self).setUp(app=app)
+    def setUp(self, app=None, prerequired_packages=[]):
+        super(ControllerTestCase, self).setUp(
+            app=app,
+            prerequired_packages=prerequired_packages)
         self.app_request_context = self.app.test_request_context(
             content_type="application/json")
         self.app_request_context.push()
