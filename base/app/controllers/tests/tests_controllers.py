@@ -1,16 +1,37 @@
 from base.lib.testing import ControllerTestCase
-from werkzeug.exceptions import UnsupportedMediaType
+from werkzeug.exceptions import UnsupportedMediaType, BadRequest
 from werkzeug.datastructures import ImmutableMultiDict
 from flask.wrappers import Response
 from flask import make_response, request, g
 from base.app.models.api.exceptions import ApiInvalidAccessControlHeader
+from base.app.controllers.validator import ArgumentValidator
 from base.app.controllers import _get_response_from_result,\
     get_parameters_by_method, accepts_mimetypes,\
     _get_allowed_cross_origin_domain,\
-    access_cross_origin_resource_sharing_header
+    access_cross_origin_resource_sharing_header,\
+    validate
 
 
 class ControllersTestCase(ControllerTestCase):
+
+    def test_validate_raises_proper_exception_when_missing_required_parameter(self):
+        self.app_request_context.pop()
+        self.app_request_context = self.app.test_request_context(
+            content_type="application/json",
+            method="POST",
+            data='{"foo": "bar", "baf": "baf"}')
+        self.app_request_context.push()
+
+        @validate(ArgumentValidator(required_args=['foo', 'bar']))
+        def dummyFunc():
+            return "foo", 201, {"header": "bar"}
+
+        with self.assertRaises(BadRequest) as cm:
+            dummyFunc()
+
+        excp = cm.exception    
+        self.assertEquals(excp.description, "Required pamameter bar is missing.")
+
     def test_accepts_mimetypes_decorator_raises_proper_exception_when_unsupported_type(self):
         @accepts_mimetypes(supported_types=["foo"])
         def dummyFunc():

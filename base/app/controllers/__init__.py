@@ -1,9 +1,28 @@
 from functools import wraps
 from flask import g, request, current_app, make_response
 from flask.wrappers import Response
-from werkzeug.exceptions import UnsupportedMediaType
+from werkzeug.exceptions import UnsupportedMediaType, BadRequest
 from base.app.models.api.exceptions import ApiInvalidAccessControlHeader
 
+
+def validate(*validators):
+    def validator_decorator(func):
+        @wraps(func)
+        def __wrapper(*args, **kwargs):
+            valid = True
+            error_str = ''
+            for validator in validators:
+                validator.accept(request)
+
+            for validator in validators:
+                if validator.errors:
+                    error_str += " ".join(validator.errors)
+            if error_str:
+                raise BadRequest(description=error_str)
+
+            return func(*args, **kwargs)
+        return __wrapper
+    return validator_decorator
 
 def get_parameters_by_method():
     """Get request parameters as a dictionary dynamically depending one the
