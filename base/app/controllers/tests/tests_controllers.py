@@ -4,7 +4,7 @@ from werkzeug.datastructures import ImmutableMultiDict
 from flask.wrappers import Response
 from flask import make_response, request, g
 from base.app.models.api.exceptions import ApiInvalidAccessControlHeader
-from base.app.controllers.validator import ArgumentValidator
+from base.app.controllers.validator import ArgumentValidator, FileValidator
 from base.app.controllers import _get_response_from_result,\
     get_parameters_by_method, accepts_mimetypes,\
     _get_allowed_cross_origin_domain,\
@@ -31,6 +31,25 @@ class ControllersTestCase(ControllerTestCase):
 
         excp = cm.exception    
         self.assertEquals(excp.description, "Required pamameter bar is missing.")
+
+    def test_validate_raises_proper_exception_when_missing_file_name(self):
+        csv_file = Mock()
+        self.app_request_context.pop()
+        self.app_request_context = self.app.test_request_context(
+            content_type="application/json",
+            method="POST",
+            data={'files': csv_file})
+        self.app_request_context.push()
+
+        @validate(FileValidator(file_name='transactions_csv'))
+        def dummyFunc():
+            return "foo", 201, {"header": "bar"}
+
+        with self.assertRaises(BadRequest) as cm:
+            dummyFunc()
+
+        excp = cm.exception    
+        self.assertEquals(excp.description, "No file transactions_csv in request.")
 
     def test_accepts_mimetypes_decorator_raises_proper_exception_when_unsupported_type(self):
         @accepts_mimetypes(supported_types=["foo"])

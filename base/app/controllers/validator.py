@@ -26,3 +26,18 @@ class ArgumentValidator(Validator):
 				error_msg = "Required pamameter %s is missing." % arg
 				self.errors.append(error_msg)
 
+class FileValidator(Validator):
+	def __init__(self, file_name=None):
+		super(FileValidator, self).__init__()
+		self.file_name = file_name
+		
+	def accept(self, request):
+		try:
+			request_file = request.files[self.file_name]
+		except KeyError:
+			error_msg = "No file %s in request." % self.file_name
+			self.errors.append(error_msg)
+			return 
+		if getsizeof(request_file) > 40000:
+			error_msg = "File exceeds maximun size."
+			self.errors.append(error_msg)
