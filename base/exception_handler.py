@@ -46,7 +46,7 @@ def error_handler(error):
     except AttributeError:
         headers = None
 
-    return Response(json.dumps(json_response),
+    return Response(json.dumps(envelope.to_json()),
                     status=int(http_code),
                     mimetype='application/json', headers=headers)
 
