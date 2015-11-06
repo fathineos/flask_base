@@ -7,7 +7,7 @@ all: setup_development_environment setup_environment
 
 setup_environment: _install_system_dependencies _create_virtualenvironment _install_application_dependencies _generate_production_configuration_files _bootstrap_database
 
-setup_development_environment: setup_environment _install_development_application_dependencies _generate_development_configuration_files _bootstrap_development_database
+setup_development_environment: setup_environment _install_development_application_dependencies _generate_development_configuration_files
 
 upgrade_application_dependencies: _rmpyc _create_download_dir
 	./scripts/install_application_dependencies.sh production upgrade
@@ -38,9 +38,6 @@ migrate_test_environment: _clean
 
 _bootstrap_database:
 	PYTHONPATH=`pwd` env/bin/python ./scripts/bootstrap_database.py base.app
-
-_bootstrap_development_database:
-	APPLICATION_ENV=testing PYTHONPATH=`pwd` env/bin/python ./scripts/bootstrap_database.py base.app
 
 _create_virtualenvironment:
 	rm -rf ./env
