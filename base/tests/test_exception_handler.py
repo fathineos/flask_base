@@ -19,6 +19,5 @@ class ExceptionHandlerTestCase(TestCase):
         actual_response = error_handler(error)
 
         self.assertEquals("500 INTERNAL SERVER ERROR", actual_response.status)
-        self.assertEquals('{"code": "None", "errors": [{"code": 1000, '
-                          '"message": "Generic Api Error"}], "message": null, '
-                          '"results": null}', actual_response.data)
+        self.assertIn("\"message\": \"Generic Api Error\"", actual_response.data)
+        self.assertIn("\"code\": 1000", actual_response.data)

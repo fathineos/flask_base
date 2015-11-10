@@ -1,5 +1,6 @@
 from werkzeug import exceptions
-from flask import current_app, Response, json, g
+from json import dumps
+from flask import current_app, Response, g
 from base.app.models.api.envelope import Envelope
 from base.app.models.api import exceptions as base_exceptions
 from base.app.models.api.exceptions import ApiException, \
@@ -46,7 +47,7 @@ def error_handler(error):
     except AttributeError:
         headers = None
 
-    return Response(json.dumps(envelope.to_json()),
+    return Response(dumps(envelope.to_dict()),
                     status=int(http_code),
                     mimetype='application/json', headers=headers)
 
