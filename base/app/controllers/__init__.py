@@ -65,7 +65,15 @@ def access_cross_origin_resource_sharing_header(f):
     @wraps(f)
     def add_allow_origin(*args, **kwargs):
         domain = _get_allowed_cross_origin_domain()
-        r = _get_response_from_result(f(*args, **kwargs))
+        if request.method == "OPTIONS":
+            r = make_response()
+            r.headers["Access-Control-Allow-Methods"] = \
+                "GET, POST, PUT, OPTIONS"
+            r.headers["Access-Control-Max-Age"] = 1000
+            r.headers["Access-Control-Allow-Headers"] = \
+                "origin, x-csrftoken, content-type, accept"
+        else:
+            r = _get_response_from_result(f(*args, **kwargs))
         r.headers["Access-Control-Allow-Origin"] = domain
         return r
     return add_allow_origin

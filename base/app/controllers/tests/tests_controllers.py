@@ -110,7 +110,7 @@ class ControllersTestCase(ControllerTestCase):
         self.assertEquals(domain, "http://test.local")
         self.assertEquals(g.allow_origin_domain, "http://test.local")
 
-    def test_get_allowed_cross_origin_domain_when_valid_domain(self):
+    def test_get_allowed_cross_origin_domain_when_invalid_domain(self):
         self.app_request_context.pop()
         self.app_request_context = self.app.test_request_context(
             content_type="application/json",
@@ -141,3 +141,25 @@ class ControllersTestCase(ControllerTestCase):
         self.assertEquals(g.allow_origin_domain, "http://test.local")
         self.assertEquals(result.response, ["foo"])
         self.assertEquals(result.status_code, 201)
+
+    def test_access_cross_origin_resource_sharing_header_when_options_request(self):
+        self.app_request_context.pop()
+        self.app_request_context = self.app.test_request_context(
+            content_type="application/json",
+            method="OPTIONS",
+            data='{"foo": "bar"}',
+            headers={"Origin": "http://test.local"})
+        self.app_request_context.push()
+
+    def test_access_cross_origin_resource_sharing_header_when_options_request(self):
+        self.app_request_context.pop()
+        self.app_request_context = self.app.test_request_context(
+            content_type="application/json",
+            method="OPTIONS",
+            data='{"foo": "bar"}',
+            headers={"Origin": "http://invalid"})
+        self.app_request_context.push()
+        with self.assertRaises(ApiInvalidAccessControlHeader):
+            _get_allowed_cross_origin_domain()
+        with self.assertRaises(AttributeError):
+            self.assertIsNone(g.allow_origin_domain)
