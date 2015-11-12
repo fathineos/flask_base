@@ -29,7 +29,7 @@ class ControllersTestCase(ControllerTestCase):
         with self.assertRaises(BadRequest) as cm:
             dummyFunc()
 
-        excp = cm.exception    
+        excp = cm.exception
         self.assertEquals(excp.description, "Required pamameter bar is missing.")
 
     def test_validate_raises_proper_exception_when_missing_file_name(self):

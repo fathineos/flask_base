@@ -9,10 +9,10 @@ setup_environment: _install_system_dependencies _create_virtualenvironment _inst
 
 setup_development_environment: setup_environment _install_development_application_dependencies _generate_development_configuration_files
 
-upgrade_application_dependencies: _rmpyc _create_download_dir
+upgrade_application_dependencies:
 	./scripts/install_application_dependencies.sh production upgrade
 
-upgrade_development_application_dependencies: _rmpyc _clean _create_download_dir
+upgrade_development_application_dependencies:
 	./scripts/install_application_dependencies.sh development upgrade
 
 run: _clean
@@ -21,14 +21,14 @@ run: _clean
 shell: _clean
 	PYTHONPATH=`pwd` env/bin/python $(APPLICATION_DIR)/run.py shell
 
-test:
+test: pep8 _clean
 	PYTHONPATH=`pwd` env/bin/nosetests $(APPLICATION_DIR)
 
 test_coverage:
 	PYTHONPATH=`pwd` env/bin/nosetests --with-coverage --cover-erase --cover-package=$(APPLICATION_DIR)
 
 pep8:
-	PYTHONPATH=`pwd` env/bin/pep8 -r $(APPLICATION_DIR)
+	PYTHONPATH=`pwd` env/bin/pep8 --exclude='test_*' -r $(APPLICATION_DIR)
 
 migrate: _clean
 	PYTHONPATH=`pwd` env/bin/alembic --config base/app/configs/alembic.ini upgrade head
@@ -47,15 +47,11 @@ _install_system_dependencies:
 	./scripts/install_system_dependencies.sh
 	rm -rf .download_cache
 
-_install_application_dependencies: _rmpyc _create_download_dir
+_install_application_dependencies:
 	./scripts/install_application_dependencies.sh production
 
-_install_development_application_dependencies: _rmpyc _create_download_dir
+_install_development_application_dependencies:
 	./scripts/install_application_dependencies.sh development
-
-_create_download_dir:
-	rm -rf .download_cache
-	mkdir -p .download_cache
 
 _generate_production_configuration_files:
 	./scripts/generate_configuration_files.sh $(APPLICATION_DIR) production
@@ -63,8 +59,5 @@ _generate_production_configuration_files:
 _generate_development_configuration_files:
 	./scripts/generate_configuration_files.sh $(APPLICATION_DIR) development
 
-_clean: _rmpyc
-	rm -rf .download_cache
-
-_rmpyc:
+_clean:
 	find . -name "*.pyc" -exec rm -rf {} \;

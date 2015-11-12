@@ -25,8 +25,8 @@ def create_app(package_name, basepath=None, forced_environment=None):
     :type package_name: str
     :param basepath: A basepath to the application
     :type basepath: dict
-    :param forced_environment: A string denoting the environment we would like the
-    application to bootstrap with
+    :param forced_environment: A string denoting the environment we would like
+    the application to bootstrap with
     :type forced_environment:  str
     :return: flask.app.Flask -- The flask application object created with
     corresponding configuration

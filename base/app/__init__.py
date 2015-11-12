@@ -6,8 +6,8 @@ def create(basepath=None, forced_environment=None):
     Instantiate and return flask app from factory
     :param basepath:  A basepath to the application
     :type basepath:  str
-    :param forced_environment: A string denoting the environment we would like the
-    application to bootstrap with
+    :param forced_environment: A string denoting the environment we would like
+    the application to bootstrap with
     :type forced_environment: str
     :return: flask.app.Flask -- The flask application object created with
     corresponding configuration

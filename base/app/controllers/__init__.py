@@ -24,6 +24,7 @@ def validate(*validators):
         return __wrapper
     return validator_decorator
 
+
 def get_parameters_by_method():
     """Get request parameters as a dictionary dynamically depending one the
     request type (GET, POST).
