@@ -3,7 +3,6 @@ from os.path import join, abspath, dirname
 from os import environ
 from logging import FileHandler, DEBUG
 from flask import Flask
-from base.app.configs import default
 
 
 DB = None
@@ -24,15 +23,11 @@ def create_app(package_name, basepath=None, forced_environment=None):
     :param package_name: the name of the root package of the application
     instance to create
     :type package_name: str
-    :param package_path: the absolute path of the root package of the
-    application instance to create
-    :type package_path: str
-    :param settings_override: A dictionary containing all setting keys to
-    override with, after default bootstrap
-    :type settings_override: dict
-    :param environment: A string denoting the environment we would like the
+    :param basepath: A basepath to the application
+    :type basepath: dict
+    :param forced_environment: A string denoting the environment we would like the
     application to bootstrap with
-    :type environment:  str
+    :type forced_environment:  str
     :return: flask.app.Flask -- The flask application object created with
     corresponding configuration
     """
@@ -89,7 +84,7 @@ def _app_configs(app, forced_environment):
     application to bootstrap with
     :type forced_environment: str
     """
-
+    from base.app.configs import default
     app.config.from_object(default)
 
     _get_environment(app, forced_environment, app.basepath)
