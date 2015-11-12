@@ -1,9 +1,14 @@
-from os import environ
+from sys import prefix, modules
+from os import environ, remove
 from os.path import abspath, dirname, split
+from flask_sqlalchemy import SQLAlchemy
 from flask import Flask
+from logging import FileHandler
 from base.lib.testing import TestCase
 from base.factory import create_app, _get_environment, _init_sql_db,\
-    ENVIRONMENT_DEVELOPMENT, ENVIRONMENT_TESTING
+    _register_error_handler, _get_basepath, ENVIRONMENT_DEVELOPMENT,\
+    ENVIRONMENT_TESTING
+from base.app.controllers.front_controller import blueprints
 
 
 BASEPATH = split(split(abspath(dirname(__file__)))[0])[0]
@@ -44,7 +49,6 @@ class TestFactory(TestCase):
                                           basepath=BASEPATH))
 
     def test_app_configs_registered_proper_configuration_packages(self):
-        from sys import modules
         create_app(package_name="base.app",
                    forced_environment=ENVIRONMENT_TESTING)
         self.assertIn("base.app.configs.default", modules)
@@ -52,15 +56,11 @@ class TestFactory(TestCase):
 
     def test_get_sql_db_load_sqlalchemy_package_when_configured_accordingly(
             self):
-        from sys import prefix, modules
-        from flask_sqlalchemy import SQLAlchemy
-
         test_flask_app = Flask(
             "base.test_app",
             instance_path=(prefix + '/config/'),
             instance_relative_config=True,
-            static_folder='public'
-        )
+            static_folder='public')
 
         test_flask_app.config["PACKAGE_SQLALCHEMY_ENABLED"] = True
         _init_sql_db(test_flask_app)
@@ -72,13 +72,11 @@ class TestFactory(TestCase):
         self.assertIsInstance(test_flask_app.DB, SQLAlchemy)
 
     def test_get_sql_db_not_load_sqlalchemy_when_configured_accordingly(self):
-        from sys import prefix
         test_flask_app = Flask(
             "base.test_app",
             instance_path=(prefix + '/config/'),
             instance_relative_config=True,
-            static_folder='public'
-        )
+            static_folder='public')
 
         test_flask_app.config["PACKAGE_SQLALCHEMY_ENABLED"] = False
         _init_sql_db(test_flask_app)
@@ -86,7 +84,49 @@ class TestFactory(TestCase):
 
     def test_registered_blueprints(self):
         flask_app = create_app(package_name="base.app")
-        from base.app.controllers.front_controller import blueprints
         app_blueprints = [name for name in flask_app.blueprints.keys()]
         for blueprint in blueprints:
             self.assertTrue(blueprint.name in app_blueprints)
+
+    def test_register_error_handler_when_logger_file_is_disabled(self):
+        test_flask_app = Flask(
+            "base.test_app",
+            instance_path=(prefix + '/config/'),
+            instance_relative_config=True,
+            static_folder='public')
+        test_flask_app.env = "testing"
+        test_flask_app.basepath = "./"
+        test_flask_app.config["LOGGER_FILE"] = False
+        _register_error_handler(test_flask_app)
+        self.assertEquals(1, len(test_flask_app.logger.handlers))
+        self.assertNotIsInstance(test_flask_app.logger.handlers[0], FileHandler)
+
+    def test_register_error_handler_when_logger_file_is_enabled(self):
+        test_flask_app = Flask(
+            "base.test_app",
+            instance_path=(prefix + '/config/'),
+            instance_relative_config=True,
+            static_folder='public')
+        test_flask_app.env = "testing"
+        test_flask_app.basepath = _get_basepath(test_flask_app)
+        test_flask_app.config["LOGGER_FILE"] = True
+        _register_error_handler(test_flask_app)
+        self.assertIsInstance(test_flask_app.logger.handlers[1], FileHandler)
+
+    def test_register_error_handler_when_logger_file_is_enabled_with_output_path(self):
+        test_flask_app = Flask(
+            "base.test_app",
+            instance_path=(prefix + '/config/'),
+            instance_relative_config=True,
+            static_folder='public')
+        test_flask_app.env = "testing"
+        test_flask_app.basepath = _get_basepath(test_flask_app)
+        test_flask_app.config["LOGGER_FILE"] = True
+        test_flask_app.config["LOGGER_FILE_LOCATION"] = "logs/test.log"
+        _register_error_handler(test_flask_app)
+        self.assertIsInstance(test_flask_app.logger.handlers[1], FileHandler)
+        expected_log_file_path = "{}/logs/test.log".format(
+            test_flask_app.basepath)
+        self.assertEquals(expected_log_file_path,
+                          test_flask_app.logger.handlers[1].baseFilename)
+        remove(expected_log_file_path)

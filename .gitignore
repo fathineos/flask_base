@@ -6,6 +6,7 @@
 *.so
 *.swp
 *.egg-info/
+*.log
 
 .download_cache
 .DS_Store

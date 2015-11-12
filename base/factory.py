@@ -1,6 +1,9 @@
 from sys import prefix
-from os.path import join
+from os.path import join, abspath, dirname
+from os import environ
+from logging import FileHandler, DEBUG
 from flask import Flask
+from base.app.configs import default
 
 
 DB = None
@@ -36,15 +39,15 @@ def create_app(package_name, basepath=None, forced_environment=None):
 
     app = Flask(
         package_name,
-        instance_path=(prefix + '/config/'),
+        instance_path=(prefix + "/config/"),
         instance_relative_config=True,
-        static_folder='public'
+        static_folder="public"
     )
 
-    if not basepath:
-        basepath = _get_basepath()
+    _get_basepath(app, forced_basepath=basepath)
 
-    _app_configs(app, forced_environment, basepath)
+    _app_configs(app, forced_environment)
+    _register_error_handler(app)
     _register_additional_packages(app)
     _register_exception_error_handler(app)
     from base.app.controllers.front_controller import blueprints
@@ -52,12 +55,31 @@ def create_app(package_name, basepath=None, forced_environment=None):
     return app
 
 
-def _get_basepath():
-    from os.path import abspath, dirname
-    return abspath(dirname(__file__))
+def _get_basepath(app, forced_basepath=None):
+    if forced_basepath:
+        app.basepath = forced_basepath
+    else:
+        app.basepath = abspath(dirname(__file__))
+    return app.basepath
 
 
-def _app_configs(app, forced_environment, basepath):
+def _register_error_handler(app):
+    if app.env in ["development"]:
+        app.logger.setLevel(DEBUG)
+
+    handlers = list()
+    if app.config.get("LOGGER_FILE"):
+        file_log_path = "logs/error.log"
+        if app.config.get("LOGGER_FILE_LOCATION"):
+            file_log_path = app.config.get("LOGGER_FILE_LOCATION")
+        handlers.append(
+            FileHandler("{}/{}".format(app.basepath, file_log_path)))
+
+    for h in handlers:
+        app.logger.addHandler(h)
+
+
+def _app_configs(app, forced_environment):
     """Initialize application configuration based on environment. Combines the
     default configuration with environmental specific
 
@@ -68,30 +90,24 @@ def _app_configs(app, forced_environment, basepath):
     :type forced_environment: str
     """
 
-    from base.app.configs import default
     app.config.from_object(default)
 
-    app.environment = _get_environment(app,
-                                       forced_environment,
-                                       basepath)
-    config_file_path = join(basepath,
-                            "app/configs/{}.py".format(app.environment))
+    _get_environment(app, forced_environment, app.basepath)
+    config_file_path = join(app.basepath, "app/configs/{}.py".format(app.env))
     app.config.from_pyfile(config_file_path, silent=True)
 
 
 def _get_environment(app, forced_environment, basepath):
-    if forced_environment:
-        return forced_environment
-
-    from os import environ
     environment_variable = environ.get("APPLICATION_ENV")
     if environment_variable:
-        return environment_variable
-
-    application_id_path = app.config.get("APPLICATION_ID_PATH")
-    with open(join(basepath, application_id_path)) as appid:
-        env = appid.read().strip()
-
+        env = environment_variable
+    elif forced_environment:
+        env = forced_environment
+    else:
+        application_id_path = app.config.get("APPLICATION_ID_PATH")
+        with open(join(basepath, application_id_path)) as appid:
+            env = appid.read().strip()
+    app.env = env
     return env
 
 
