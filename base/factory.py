@@ -3,6 +3,7 @@ from os.path import join, abspath, dirname
 from os import environ
 from logging import FileHandler, DEBUG
 from flask import Flask
+from base.exception_handler import exceptions, error_handler
 
 
 DB = None
@@ -10,6 +11,8 @@ DB = None
 ENVIRONMENT_PRODUCTION = "production"
 ENVIRONMENT_DEVELOPMENT = "development"
 ENVIRONMENT_TESTING = "testing"
+BASE_MODE_LIBRARY = "MODE_LIBRARY"
+BASE_MODE_NATIVE = "MODE_NATIVE"
 
 
 def create_app(package_name, basepath=None, forced_environment=None):
@@ -36,8 +39,12 @@ def create_app(package_name, basepath=None, forced_environment=None):
         package_name,
         instance_path=(prefix + "/config/"),
         instance_relative_config=True,
-        static_folder="public"
-    )
+        static_folder="public")
+
+    if basepath:
+        app.base_mode = BASE_MODE_LIBRARY
+    else:
+        app.base_mode = BASE_MODE_NATIVE
 
     _get_basepath(app, forced_basepath=basepath)
 
@@ -59,7 +66,7 @@ def _get_basepath(app, forced_basepath=None):
 
 
 def _register_error_handler(app):
-    if app.env in ["development"]:
+    if app.env == ENVIRONMENT_DEVELOPMENT:
         app.logger.setLevel(DEBUG)
 
     handlers = list()
@@ -87,6 +94,10 @@ def _app_configs(app, forced_environment):
     from base.app.configs import default
     app.config.from_object(default)
 
+    if app.base_mode == BASE_MODE_LIBRARY:
+        config_file_path = join(app.basepath, "app/configs/default.py")
+        app.config.from_pyfile(config_file_path, silent=True)
+
     _get_environment(app, forced_environment, app.basepath)
     config_file_path = join(app.basepath, "app/configs/{}.py".format(app.env))
     app.config.from_pyfile(config_file_path, silent=True)
@@ -111,23 +122,20 @@ def _register_blueprints(app, blueprints):
         app.register_blueprint(blueprint)
 
 
-def _register_exception_error_handler(application):
+def _register_exception_error_handler(app):
     """
     Registers our custom exception and error handlers as default handlers to
     the created flask application to handle all errors and exceptions raised
     and properly transform them to json formatted api responses.
 
-    :param application: The flask application object
-    :type application: flask.app.Flask
+    :param app: The flask application object
+    :type app: flask.app.Flask
     :return:
     """
-    from base import exception_handler
-    for exception in exception_handler.exceptions.default_exceptions:
-        application.register_error_handler(exception,
-                                           exception_handler.error_handler)
+    for exception in exceptions.default_exceptions:
+        app.register_error_handler(exception, error_handler)
 
-    application.register_error_handler(Exception,
-                                       exception_handler.error_handler)
+    app.register_error_handler(Exception, error_handler)
 
 
 def _register_additional_packages(app):
