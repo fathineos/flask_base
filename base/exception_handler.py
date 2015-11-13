@@ -1,4 +1,3 @@
-from werkzeug import exceptions
 from json import dumps
 from flask import current_app, Response, g
 from base.app.models.api.envelope import Envelope
