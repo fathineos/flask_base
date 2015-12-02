@@ -3,7 +3,6 @@ from os.path import join, abspath, dirname
 from os import environ
 from logging import FileHandler, DEBUG
 from flask import Flask
-from base.exception_handler import error_handler
 
 
 DB = None
@@ -133,6 +132,7 @@ def _register_exception_error_handler(app):
     :return:
     """
     from werkzeug.exceptions import default_exceptions
+    from base.exception_handler import error_handler
     for exception in default_exceptions:
         app.register_error_handler(exception, error_handler)
 

@@ -1,8 +1,8 @@
 from json import dumps
 from flask import current_app, Response, g
-from base.app.models.api.envelope import Envelope
-from base.app.models.api import exceptions as base_exceptions
-from base.app.models.api.exceptions import ApiException, \
+from .app.models.api.envelope import Envelope
+from .app.models.api import exceptions as base_exceptions
+from .app.models.api.exceptions import ApiException, \
     InvalidEnvelopeException, ApiValidationInternalException, \
     ApiRequestFileValidationException, ApiInvalidAccessControlHeader, \
     InvalidEnvelopeParamException, InvalidEnvelopeResults
