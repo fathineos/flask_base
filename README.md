@@ -1,22 +1,23 @@
 # Flask-Base library #
 
-Flask Base is a library based on Flask and provides commonly used functionality to web applications which run on top of it. It may also work as a stand alone application.
+Flask Base is a library based on Flask and provides commonly used functionality to web applications which run on top of it. It may also run as a stand alone application.
 [Flask](http://flask.pocoo.org/) is a microframework for Python to easily create Web Apps.
 
 ### What is this repository for? ###
 
-* Managing Configurations
-* Handling Databases and migration mechanism
-* Testing Framework
+* Handling application Configurations
+* Modular Database Connection initialization and migration mechanism with alembic
+* Testing Framework with nose, coverage, pep8
+* Libraries for common functionalities
 
 
 ### Installation ###
 
-1. Install packages
+1.Install system dependencies
 ```
-sudo apt-get install python-virtualenv, python-pip, dos2unix, mysql
+sudo apt-get install python-virtualenv, python-pip, mysql, python-mysql
 ```
-2. Setup environment:
+2.Setup environment:
 ```
 make all
 ```
@@ -26,7 +27,4 @@ make all
 make run
 ```
 
-### Run as shell ###
-```
-make shell
-```
+Read Makefile for available commands
