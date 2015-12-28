@@ -54,7 +54,7 @@ def accepts_mimetypes(supported_types):
                     break
 
             if not valid:
-                error_str = "Content-type must be set to one of the types : %s"\
+                error_str = "Invalid Content-type, accepted types : %s"\
                     % str(supported_type)
                 raise UnsupportedMediaType(description=error_str)
             return func(*args, **kwargs)

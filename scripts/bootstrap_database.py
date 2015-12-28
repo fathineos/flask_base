@@ -11,7 +11,7 @@ except IndexError:
     exit(1)
 
 app = Flask(app_module)
-_app_configs(app, None, _get_basepath())
+_app_configs(app)
 db_name = app.config["SQLALCHEMY_DATABASE_URI"].split("/")[-1:][0]
 if (app.config["PACKAGE_SQLALCHEMY_ENABLED"] == True):
     mysql_uri = app.config["SQLALCHEMY_DATABASE_URI"].replace(db_name, "")

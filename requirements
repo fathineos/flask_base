@@ -2,5 +2,7 @@ alembic
 Flask==0.10.1
 Flask-Script
 Flask-SQLAlchemy==2.0.0
+iso8601
 MySQL-python==1.2.5
+pytz
 SQLAlchemy==0.9.8

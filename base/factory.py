@@ -80,7 +80,7 @@ def _register_error_handler(app):
         app.logger.addHandler(h)
 
 
-def _app_configs(app, forced_environment):
+def _app_configs(app, forced_environment=None):
     """Initialize application configuration based on environment. Combines the
     default configuration with environmental specific
 

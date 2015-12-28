@@ -1,6 +1,6 @@
-from .exceptions import InvalidEnvelopeException, InvalidEnvelopeParamException,\
-    JsonifyEnvelopeException
 from json import dumps
+from .exceptions import InvalidEnvelopeException, \
+    InvalidEnvelopeParamException, JsonifyEnvelopeException
 
 
 class Envelope(object):

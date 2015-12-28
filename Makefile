@@ -21,7 +21,7 @@ run: _clean
 shell: _clean
 	PYTHONPATH=`pwd` env/bin/python $(APPLICATION_DIR)/run.py shell
 
-test: pep8 _clean
+test: _clean pep8
 	PYTHONPATH=`pwd` env/bin/nosetests $(APPLICATION_DIR)
 
 test_coverage:
@@ -37,7 +37,7 @@ migrate_test_environment: _clean
 	APPLICATION_ENV=test PYTHONPATH=`pwd` env/bin/alembic --config base/app/configs/alembic.ini upgrade head
 
 _bootstrap_database:
-	PYTHONPATH=`pwd` env/bin/python ./scripts/bootstrap_database.py base.app
+	# PYTHONPATH=`pwd` env/bin/python ./scripts/bootstrap_database.py base.app
 
 _create_virtualenvironment:
 	rm -rf ./env
@@ -45,7 +45,6 @@ _create_virtualenvironment:
 
 _install_system_dependencies:
 	./scripts/install_system_dependencies.sh
-	rm -rf .download_cache
 
 _install_application_dependencies:
 	./scripts/install_application_dependencies.sh production

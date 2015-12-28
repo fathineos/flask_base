@@ -21,7 +21,7 @@ class InvalidEnvelopeResults(InvalidEnvelopeException):
     description = "Invalid Envelope Results: cannot stringify results"
 
 
-class JsonifyEnvelopeException(ApiException):
+class JsonifyEnvelopeException(InvalidEnvelopeException):
     code = 1103
     description = "Could not jsonify Envelope"
 
