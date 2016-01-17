@@ -1,13 +1,16 @@
-# Unit-testing, docs, etc.
-
-APPLICATION_DIR=base
-VIRTUALENV?=virtualenv
+APP_DIR = base
+ENV ?= env
 
 all: setup_development_environment setup_environment
 
-setup_environment: _install_system_dependencies _create_virtualenvironment _install_application_dependencies _generate_production_configuration_files _bootstrap_database
+setup_environment: _install_system_dependencies \
+	_create_virtualenvironment \
+	_install_application_dependencies \
+	_generate_production_configuration_files
 
-setup_development_environment: setup_environment _install_development_application_dependencies _generate_development_configuration_files
+setup_development_environment: setup_environment \
+	_install_development_application_dependencies \
+	_generate_development_configuration_files
 
 upgrade_application_dependencies:
 	./scripts/install_application_dependencies.sh production upgrade
@@ -16,32 +19,32 @@ upgrade_development_application_dependencies:
 	./scripts/install_application_dependencies.sh development upgrade
 
 run: _clean
-	PYTHONPATH=`pwd` env/bin/python $(APPLICATION_DIR)/run.py runserver
+	PYTHONPATH=`pwd` $(ENV)/bin/python $(APP_DIR)/run.py runserver
 
 shell: _clean
-	PYTHONPATH=`pwd` env/bin/python $(APPLICATION_DIR)/run.py shell
+	PYTHONPATH=`pwd` $(ENV)/bin/python $(APP_DIR)/run.py shell
 
 test: _clean pep8
-	PYTHONPATH=`pwd` env/bin/nosetests $(APPLICATION_DIR)
+	PYTHONPATH=`pwd` $(ENV)/bin/nosetests $(APP_DIR)
 
 test_coverage:
-	PYTHONPATH=`pwd` env/bin/nosetests --with-coverage --cover-erase --cover-package=$(APPLICATION_DIR)
+	PYTHONPATH=`pwd` $(ENV)/bin/nosetests --with-coverage \
+		--cover-erase --cover-package=$(APP_DIR)
 
 pep8:
-	PYTHONPATH=`pwd` env/bin/pep8 --exclude='test_*' -r $(APPLICATION_DIR)
+	PYTHONPATH=`pwd` $(ENV)/bin/pep8 --exclude='test_*' -r $(APP_DIR)
 
 migrate: _clean
-	PYTHONPATH=`pwd` env/bin/alembic --config base/app/configs/alembic.ini upgrade head
+	PYTHONPATH=`pwd` $(ENV)/bin/alembic \
+		--config base/app/configs/alembic.ini upgrade head
 
 migrate_test_environment: _clean
-	APPLICATION_ENV=test PYTHONPATH=`pwd` env/bin/alembic --config base/app/configs/alembic.ini upgrade head
-
-_bootstrap_database:
-	# PYTHONPATH=`pwd` env/bin/python ./scripts/bootstrap_database.py base.app
+	APPLICATION_ENV=test PYTHONPATH=`pwd` $(ENV)/bin/alembic \
+		--config base/app/configs/alembic.ini upgrade head
 
 _create_virtualenvironment:
-	rm -rf ./env
-	$(VIRTUALENV) --no-site-packages env
+	rm -rf $(ENV)
+	virtualenv --no-site-packages $(ENV)
 
 _install_system_dependencies:
 	./scripts/install_system_dependencies.sh
@@ -53,10 +56,10 @@ _install_development_application_dependencies:
 	./scripts/install_application_dependencies.sh development
 
 _generate_production_configuration_files:
-	./scripts/generate_configuration_files.sh $(APPLICATION_DIR) production
+	./scripts/generate_configuration_files.sh $(APP_DIR) production
 
 _generate_development_configuration_files:
-	./scripts/generate_configuration_files.sh $(APPLICATION_DIR) development
+	./scripts/generate_configuration_files.sh $(APP_DIR) development
 
 _clean:
 	find . -name "*.pyc" -exec rm -rf {} \;
