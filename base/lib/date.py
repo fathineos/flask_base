@@ -18,6 +18,10 @@ class Date(object):
         self._timezone = tz(timezone)
         self._datetime = datetime.now(self._timezone)
 
+    def from_datetime(self, datetime):
+        self._datetime = datetime
+        return self
+
     def from_timestamp(self, timestamp):
         self._datetime = datetime.fromtimestamp(int(timestamp),
                                                 self._timezone)
