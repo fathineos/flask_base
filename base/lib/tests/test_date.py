@@ -40,3 +40,17 @@ class TestDate(TestCase):
         date = Date(timezone=TZ_UTC)
         date.from_timestamp(timestamp="1451260800")
         self.assertEquals("2015-12-28T00:00:00Z", date.to_string(FMT_ISO8601))
+
+    def test_to_string_from_not_utc_timezone(self):
+        date = Date(timezone=TZ_UTC)
+        date.from_string(datestring="2015-12-28T05:00:00+02:00",
+                         fmt=FMT_ISO8601)
+        self.assertEquals("2015-12-28 03:00:00", date.to_string())
+
+    def test_to_datetime_without_tz_info(self):
+        date = Date(timezone=TZ_UTC)
+        date.from_string(datestring="2015-12-28T05:00:00+02:00",
+                         fmt=FMT_ISO8601)
+        result_datetime = date.to_datetime_without_tz_info()
+        expected_datetime = datetime(2015, 12, 28, 3, 0, 0)
+        self.assertEquals(expected_datetime, result_datetime)

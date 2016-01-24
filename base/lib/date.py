@@ -1,5 +1,5 @@
 from datetime import datetime
-from pytz import timezone as tz
+from pytz import timezone as tz, utc
 from .exceptions import NoTimezoneSet
 from iso8601 import parse_date
 
@@ -39,4 +39,10 @@ class Date(object):
         return self._datetime
 
     def to_string(self, date_format=FMT_ANSI):
-        return self._datetime.strftime(date_format)
+        utc_dt = self._datetime.astimezone(utc)
+        return utc_dt.strftime(date_format)
+
+    def to_datetime_without_tz_info(self):
+        return self.from_string(datestring=self.to_string())\
+            .to_datetime()\
+            .replace(tzinfo=None)
