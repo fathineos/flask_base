@@ -7,20 +7,25 @@
 *.swp
 *.egg-info/
 *.log
+*.bak
 
-.download_cache
 .DS_Store
 .idea
 _trial_temp/
 htmlcov/
-application.id
-build
+build/
+src/
+
+base/app/configs/application.id
+base/app/configs/alembic.ini
+base/app/configs/development.py
+base/app/configs/testing.py
+.DATABASE*
 
 docs
 dump.rdb
 env
 Gemfile.lock
-src/
 
 .bundle
 .sass-cache

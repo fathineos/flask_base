@@ -1,14 +1,14 @@
 APP_DIR = base
 ENV ?= env
 
-all: setup_development_environment setup_environment
+all: setup_development_environment setup_production_environment
 
-setup_environment: _install_system_dependencies \
+setup_production_environment: _install_system_dependencies \
 	_create_virtualenvironment \
 	_install_application_dependencies \
 	_generate_production_configuration_files
 
-setup_development_environment: setup_environment \
+setup_development_environment: setup_production_environment \
 	_install_development_application_dependencies \
 	_generate_development_configuration_files
 
@@ -52,14 +52,19 @@ _install_system_dependencies:
 _install_application_dependencies:
 	./scripts/install_application_dependencies.sh production
 
+_set_database_credentials:
+	. scripts/set_database_credentials.sh
+
 _install_development_application_dependencies:
 	./scripts/install_application_dependencies.sh development
 
-_generate_production_configuration_files:
-	./scripts/generate_configuration_files.sh $(APP_DIR) production
+_generate_production_configuration_files: _set_database_credentials
+	./scripts/generate_configuration_files.sh production \
+	$(APP_DIR)/app/configs
 
-_generate_development_configuration_files:
-	./scripts/generate_configuration_files.sh $(APP_DIR) development
+_generate_development_configuration_files: _set_database_credentials
+	./scripts/generate_configuration_files.sh development \
+	$(APP_DIR)/app/configs
 
 _clean:
 	find . -name "*.pyc" -exec rm -rf {} \;
