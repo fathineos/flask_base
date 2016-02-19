@@ -12,5 +12,5 @@ fi
 ${ENV}/bin/pip install $UPGRADE -r requirements
 
 if [[ $1 == "development" ]]; then
-    env/bin/pip install $UPGRADE -r requirements_dev
+    ${ENV}/bin/pip install $UPGRADE -r requirements_dev
 fi

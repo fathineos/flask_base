@@ -41,4 +41,4 @@ if [[ $ENV == "development" ]]; then
 fi
 
 rm $TARGET_DIR/*.bak
-echo $ENV > $SOURCE_DIR/application.id
+echo $ENV > $TARGET_DIR/application.id
