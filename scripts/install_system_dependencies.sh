@@ -1,21 +1,13 @@
 #!/bin/bash
 
 if [[ $(uname) == "Linux" ]]; then
-    if command -v apt-get >/dev/null; then
-        install_cmd="apt-get install -qq -y --force-yes"
-    fi
-    if command -v sudo >/dev/null; then
-        sudo="sudo"
-    fi
-    $sudo $install_cmd python-virtualenv \
-        python-pip \
-        libmysqlclient-dev \
-        python-dev
+    # This will download a installation script and run it
+    curl -sSL https://get.docker.com/ | sudo sh
+
+    # Also add your user to the docker group so you don't need to use sudo for docker commands
+    sudo gpasswd -a ${USER} docker;
+    sudo service docker restart
 elif [[ $(uname) == "Darwin" ]]; then
-    if ! command -v "brew" >/dev/null 2>&1 ; then
-        ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
-    fi
-    brew install python
-    sudo pip install virtualenv
+    # Not implemented for OSX yet
 fi
 exit 0

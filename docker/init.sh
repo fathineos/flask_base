@@ -1,4 +1,4 @@
 #!/bin/bash
 
-make docker_application_symlinks &&\
-make run
+make -f docker/Makefile _docker_configuration_symlinks &&\
+make -f docker/Makefile run
