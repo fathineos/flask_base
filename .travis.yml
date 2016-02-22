@@ -1,0 +1,5 @@
+language: python
+sudo: required
+services: docker
+install: docker pull fathineos/base_app
+script: make test

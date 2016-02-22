@@ -1,6 +1,8 @@
 # A generic, single database configuration.
 
 [alembic]
+sqlalchemy.url = mysql://#DATABASE_USER#:#DATABASE_PASS#@#DATABASE_HOST#/#DATABASE_NAME#
+
 # path to migration scripts
 script_location = /opt/venv/src/base/base/db
 version_locations = interchange/db
@@ -29,8 +31,6 @@ version_locations = interchange/db
 # the output encoding used when revision files
 # are written from script.py.mako
 # output_encoding = utf-8
-
-sqlalchemy.url = mysql://#DATABASE_USER#:#DATABASE_PASS#@#DATABASE_HOST#/#DATABASE_NAME#
 
 [loggers]
 keys = root,sqlalchemy,alembic

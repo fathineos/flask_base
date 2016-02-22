@@ -1,6 +1,5 @@
 .coverage
 *.csv
-*.log
 *.pid
 *.py[cod]
 *.so
