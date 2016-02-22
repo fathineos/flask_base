@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/fathineos/flask_base.svg?branch=master)](https://travis-ci.org/fathineos/flask_base)
+
 # Flask-Base library #
 
 Flask Base is a library based on Flask and provides commonly used functionality to web applications which run on top of it. It may also run as a stand alone application.
