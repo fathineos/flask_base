@@ -3,3 +3,6 @@ sudo: required
 services: docker
 install: docker pull fathineos/base_app
 script: make test
+notifications:
+  hipchat: d52f172610e70ea5b4209bb16e4a91@1295823
+  notify: true
