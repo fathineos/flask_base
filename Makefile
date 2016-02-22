@@ -19,7 +19,7 @@ shell:
 		make -f docker/Makefile shell
 
 container:
-	docker build --rm -t fathineos/base_app .
+	docker build --rm -f docker/Dockerfile -t fathineos/base_app .
 
 push_container:
 	docker push fathineos/base_app
