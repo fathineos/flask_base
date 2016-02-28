@@ -37,7 +37,7 @@ def get_parameters_by_method():
         parameters = request.args.copy()
     elif request.method == "POST":
         # works just for json response
-        parameters = request.get_json(silent=True) or dict()
+        parameters = request.get_json(silent=True, force=True) or dict()
 
     return parameters
 
