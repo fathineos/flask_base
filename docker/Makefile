@@ -23,7 +23,7 @@ run: _clean
 # 	PYTHONPATH=`pwd` $(ENV)/bin/alembic \
 # 		--config base/app/configs/alembic.ini upgrade head
 
-shell: _clean
+shell: _clean _configuration_symlinks
 	PYTHONPATH=`pwd` $(ENV)/bin/python $(APP_DIR)/run.py shell
 
 test: _clean _configuration_symlinks _pep8
@@ -45,32 +45,32 @@ _install_system_dependencies:
 		libmysqlclient-dev python-dev
 
 _install_application_dependencies:
-	./scripts/install_application_dependencies.sh production
+	./docker/scripts/install_application_dependencies.sh production
 
 _set_database_credentials:
 	./docker/scripts/set_database_credentials.sh
 
 _install_development_application_dependencies:
-	./scripts/install_application_dependencies.sh development
+	./docker/scripts/install_application_dependencies.sh development
 
 _create_config_folder:
 	mkdir -p /srv/www/base/configs/
 
 _generate_production_configuration_files: _set_database_credentials
-	./scripts/generate_configuration_files.sh production \
+	./docker/scripts/generate_configuration_files.sh production \
 	$(APP_DIR)/app/configs
 
 _generate_development_configuration_files: _set_database_credentials
-	./scripts/generate_configuration_files.sh development \
+	./docker/scripts/generate_configuration_files.sh development \
 	$(APP_DIR)/app/configs
 
 _generate_docker_production_configuration_files: _set_database_credentials
-	/srv/www/base/frozen/scripts/generate_configuration_files.sh \
+	/srv/www/base/frozen/docker/scripts/generate_configuration_files.sh \
 		production /srv/www/base/frozen/base/app/configs \
 		/srv/www/base/configs
 
 _generate_docker_development_configuration_files: _set_database_credentials
-	/srv/www/base/frozen/scripts/generate_configuration_files.sh \
+	/srv/www/base/frozen/docker/scripts/generate_configuration_files.sh \
 		development /srv/www/base/frozen/base/app/configs \
 		/srv/www/base/configs
 
