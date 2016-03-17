@@ -1,9 +1,9 @@
-class ApiException(Exception):
+from base.lib.exceptions import ImmutableException
+
+
+class ApiException(ImmutableException):
     code = 1000
     description = "Generic Api Error"
-
-    def __init__(self):
-        Exception.__init__(self, self.code, self.description)
 
 
 class InvalidEnvelopeException(ApiException):
