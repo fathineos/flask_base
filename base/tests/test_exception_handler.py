@@ -1,7 +1,7 @@
 from base.lib.testing import TestCase
 from base.exception_handler import \
     check_and_set_default_error_code_and_description
-from base.exception_handler import error_handler
+from base.exception_handler import exception_handler
 from base.app.models.api.exceptions import ApiException
 
 
@@ -16,7 +16,7 @@ class ExceptionHandlerTestCase(TestCase):
 
     def test_error_handler_properly_sets_http_code_when_validation_exception(self):
         error = ApiException()
-        actual_response = error_handler(error)
+        actual_response = exception_handler(error)
 
         self.assertEquals("500 INTERNAL SERVER ERROR", actual_response.status)
         self.assertIn("\"message\": \"Generic Api Error\"", actual_response.data)

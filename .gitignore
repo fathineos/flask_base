@@ -14,6 +14,8 @@ _trial_temp/
 htmlcov/
 build/
 src/
+env/
+logs/*.json
 
 base/app/configs/application.id
 base/app/configs/alembic.ini
@@ -23,7 +25,6 @@ base/app/configs/testing.py
 
 docs
 dump.rdb
-env
 Gemfile.lock
 
 .bundle

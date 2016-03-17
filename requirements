@@ -4,5 +4,6 @@ Flask-Script
 Flask-SQLAlchemy==2.0.0
 iso8601
 MySQL-python==1.2.5
+python-json-logger
 pytz
 SQLAlchemy==0.9.8

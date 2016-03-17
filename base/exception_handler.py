@@ -16,7 +16,7 @@ ERROR_TO_HTTP_CODE_MAPPING = {ApiException.code: 500,
                               ApiInvalidAccessControlHeader.code: 500}
 
 
-def error_handler(error):
+def exception_handler(error):
     """Error handle for all exceptions thrown by the application it is
     registered on. Creates response by converting the error to the relevant
     json response structure that Base uses.

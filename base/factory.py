@@ -1,8 +1,16 @@
+"""The module responsible to create the application with the appropriate
+configuration and register all the necessary submodules. The application runs
+in standalone (native) mode or as a library. Initializes all submodules
+required by the application such as database instances, blueprints etc."""
+
 from sys import prefix
 from os.path import join, abspath, dirname
 from os import environ
-from logging import FileHandler, DEBUG
+from logging import DEBUG
 from flask import Flask
+from werkzeug.exceptions import default_exceptions
+from pythonjsonlogger import jsonlogger
+from logging.handlers import RotatingFileHandler
 
 
 DB = None
@@ -16,22 +24,20 @@ BASE_MODE_NATIVE = "MODE_NATIVE"
 
 def create_app(package_name, basepath=None, forced_environment=None):
     """
-    Main application factory for the flask application bootstrap. Creates a
-    flask application object and configures all its required parameters and
-    settings according to the current environment passed as parameter to the
-    factory. Initializes all singleton instances required by the application
-    such as database instances, blueprints etc.
+    The application factory where the flask application bootstraps. Creates a
+    flask application object and configures it with all required parameters and
+    configuratiob, according to the current environment passed as parameter to
+    the factory. The application is instantiated in with sigleton pattern.
 
     :param package_name: the name of the root package of the application
     instance to create
+    :param basepath: A full path to the source of the application
+    :param forced_environment: The environment the app should bootstrap with
+    :type basepath: str
     :type package_name: str
-    :param basepath: A basepath to the application
-    :type basepath: dict
-    :param forced_environment: A string denoting the environment we would like
-    the application to bootstrap with
     :type forced_environment:  str
-    :return: flask.app.Flask -- The flask application object created with
-    corresponding configuration
+    :return: The flask application object
+    :rtype: flask.app.Flask
     """
 
     app = Flask(
@@ -48,7 +54,7 @@ def create_app(package_name, basepath=None, forced_environment=None):
     _get_basepath(app, forced_basepath=basepath)
 
     _app_configs(app, forced_environment)
-    _register_error_handler(app)
+    _register_app_loggers(app)
     _register_additional_packages(app)
     _register_exception_error_handler(app)
     from base.app.controllers.front_controller import blueprints
@@ -64,20 +70,46 @@ def _get_basepath(app, forced_basepath=None):
     return app.basepath
 
 
-def _register_error_handler(app):
-    if app.env == ENVIRONMENT_DEVELOPMENT:
-        app.logger.setLevel(DEBUG)
+def _register_app_loggers(app):
+    """Register application loggers handlers. Log level is debug, so info,
+    warning and error will be logged in a uniform JSON format. By default the
+    logs are output to stdout, if the param ROTATING_FILELOGGER_OUTPUT_LOCATION
+    is set, then all logs will be also output in the specified filepath.
+    If app is running in debug mode, flask will register a log handler which
+    outputs to stdout. Other submodules may also register custom log hanlders.
 
-    handlers = list()
-    if app.config.get("LOGGER_FILE"):
-        file_log_path = "logs/error.log"
-        if app.config.get("LOGGER_FILE_LOCATION"):
-            file_log_path = app.config.get("LOGGER_FILE_LOCATION")
-        handlers.append(
-            FileHandler("{}/{}".format(app.basepath, file_log_path)))
+    :param app: The flask application object
+    :type app: flask.app.Flask
+    """
+    app.logger.setLevel(DEBUG)
+    log_path = app.config.get("ROTATING_FILELOGGER_OUTPUT_LOCATION")
 
-    for h in handlers:
-        app.logger.addHandler(h)
+    if log_path:
+        absolute_log_path = "{}/../{}".format(app.basepath, log_path)
+        file_log_handler = _rotating_file_logger(absolute_log_path)
+        app.logger.addHandler(file_log_handler)
+
+    for handler in app.logger.handlers:
+        handler.setFormatter(_json_log_formatter())
+
+
+def _rotating_file_logger(file_log_path):
+    """Get a flask Rotating File Handler log handler
+
+    :param file_log_path: The absolute path to log file
+    :type file_log_path: str
+    """
+    log_handler = RotatingFileHandler(file_log_path,
+                                      maxBytes=10000,
+                                      backupCount=1)
+    return log_handler
+
+
+def _json_log_formatter():
+    """Get json formatter for log handlers"""
+    formatter = jsonlogger.JsonFormatter(
+        '%(asctime) %(levelname) %(module) %(funcName) %(lineno) %(message)')
+    return formatter
 
 
 def _app_configs(app, forced_environment=None):
@@ -85,9 +117,9 @@ def _app_configs(app, forced_environment=None):
     default configuration with environmental specific
 
     :param app: The flask application object
-    :type app: flask.app.Flask
     :param forced_environment: A string denoting the environment we force the
     application to bootstrap with
+    :type app: flask.app.Flask
     :type forced_environment: str
     """
     from base.app.configs import default
@@ -117,33 +149,50 @@ def _get_environment(app, forced_environment, basepath):
 
 
 def _register_blueprints(app, blueprints):
+    """Registers app blueprints. A blueprint defines a collection of views,
+    templates, static files and other elements that can be applied to an
+    application.
+    TODO: Should become public, since called when base is run in library mode.
+
+    :param app: The flask application object
+    :type app: flask.app.Flask
+    :param blueprints
+    :type blueprints: flask.Blueprint
+    """
     for blueprint in blueprints:
         app.register_blueprint(blueprint)
 
 
 def _register_exception_error_handler(app):
-    """
-    Registers our custom exception and error handlers as default handlers to
-    the created flask application to handle all errors and exceptions raised
-    and properly transform them to json formatted api responses.
+    """Register exception handler to handle http exceptions and generic
+    exceptions and return a api response, that follows the standard envelope.
 
     :param app: The flask application object
     :type app: flask.app.Flask
-    :return:
     """
-    from werkzeug.exceptions import default_exceptions
-    from base.exception_handler import error_handler
+    from base.exception_handler import exception_handler
     for exception in default_exceptions:
-        app.register_error_handler(exception, error_handler)
+        app.register_error_handler(exception, exception_handler)
 
-    app.register_error_handler(Exception, error_handler)
+    app.register_error_handler(Exception, exception_handler)
 
 
 def _register_additional_packages(app):
+    """Register optional packages on runtime, which should be enabled/disabled
+    from configuration.
+
+    :param app: The flask application object
+    :type app: flask.app.Flask
+    """
     _init_sql_db(app)
 
 
 def _init_sql_db(app):
+    """Configurable registeration of SqlAlchemy package.
+
+    :param app: The flask application object
+    :type app: flask.app.Flask
+    """
     if app.config.get("PACKAGE_SQLALCHEMY_ENABLED"):
         global DB
         if DB is None:

@@ -6,8 +6,8 @@ from flask import Flask
 from logging import FileHandler
 from base.lib.testing import TestCase
 from base.factory import create_app, _get_environment, _init_sql_db,\
-    _register_error_handler, _get_basepath, ENVIRONMENT_DEVELOPMENT,\
-    ENVIRONMENT_TESTING
+    _get_basepath, _register_app_loggers,\
+    ENVIRONMENT_DEVELOPMENT, ENVIRONMENT_TESTING
 from base.app.controllers.front_controller import blueprints
 
 
@@ -88,45 +88,25 @@ class TestFactory(TestCase):
         for blueprint in blueprints:
             self.assertTrue(blueprint.name in app_blueprints)
 
-    def test_register_error_handler_when_logger_file_is_disabled(self):
+    def test_register_app_loggers_when_rotating_filelogger_output_location_not_set(self):
         test_flask_app = Flask(
             "base.test_app",
             instance_path=(prefix + '/config/'),
             instance_relative_config=True,
             static_folder='public')
-        test_flask_app.env = "testing"
         test_flask_app.basepath = "./"
-        test_flask_app.config["LOGGER_FILE"] = False
-        _register_error_handler(test_flask_app)
+        test_flask_app.config["ROTATING_FILELOGGER_OUTPUT_LOCATION"] = None
+        _register_app_loggers(test_flask_app)
         self.assertEquals(1, len(test_flask_app.logger.handlers))
         self.assertNotIsInstance(test_flask_app.logger.handlers[0], FileHandler)
 
-    def test_register_error_handler_when_logger_file_is_enabled(self):
+    def test_register_app_loggers_when_rotating_filelogger_output_location_set(self):
         test_flask_app = Flask(
             "base.test_app",
             instance_path=(prefix + '/config/'),
             instance_relative_config=True,
             static_folder='public')
-        test_flask_app.env = "testing"
         test_flask_app.basepath = _get_basepath(test_flask_app)
-        test_flask_app.config["LOGGER_FILE"] = True
-        _register_error_handler(test_flask_app)
+        test_flask_app.config["ROTATING_FILELOGGER_OUTPUT_LOCATION"] = "logs/test.json"
+        _register_app_loggers(test_flask_app)
         self.assertIsInstance(test_flask_app.logger.handlers[1], FileHandler)
-
-    def test_register_error_handler_when_logger_file_is_enabled_with_output_path(self):
-        test_flask_app = Flask(
-            "base.test_app",
-            instance_path=(prefix + '/config/'),
-            instance_relative_config=True,
-            static_folder='public')
-        test_flask_app.env = "testing"
-        test_flask_app.basepath = _get_basepath(test_flask_app)
-        test_flask_app.config["LOGGER_FILE"] = True
-        test_flask_app.config["LOGGER_FILE_LOCATION"] = "logs/test.log"
-        _register_error_handler(test_flask_app)
-        self.assertIsInstance(test_flask_app.logger.handlers[1], FileHandler)
-        expected_log_file_path = "{}/logs/test.log".format(
-            test_flask_app.basepath)
-        self.assertEquals(expected_log_file_path,
-                          test_flask_app.logger.handlers[1].baseFilename)
-        remove(expected_log_file_path)
