@@ -2,40 +2,59 @@ from base.lib.exceptions import ImmutableException
 
 
 class ApiException(ImmutableException):
-    code = 1000
-    description = "Generic Api Error"
+    _code = 1000
+    _description = "Generic Api Error"
 
 
 class InvalidEnvelopeException(ApiException):
-    code = 1100
-    description = "Invalid Envelope: General Error"
+    _code = 1100
+    _description = "Invalid Envelope: General Error"
 
 
 class InvalidEnvelopeParamException(InvalidEnvelopeException):
-    code = 1101
-    description = "Invalid Envelope: message type Error"
+    _code = 1101
+    _description = "Invalid Envelope: message type Error"
 
 
 class InvalidEnvelopeResults(InvalidEnvelopeException):
-    code = 1102
-    description = "Invalid Envelope Results: cannot stringify results"
+    _code = 1102
+    _description = "Invalid Envelope Results: cannot stringify results"
 
 
 class JsonifyEnvelopeException(InvalidEnvelopeException):
-    code = 1103
-    description = "Could not jsonify Envelope"
+    _code = 1103
+    _description = "Could not jsonify Envelope"
 
 
-class ApiValidationInternalException(ApiException):
-    code = 2000
-    description = "Api Validation Internal Error"
+class ApiRequestValidationException(ImmutableException):
+    """The request validator exceptions should extend this class"""
+    _code = 1200
+    _description = "Request Validation Error"
 
 
-class ApiRequestFileValidationException(ApiException):
-    code = 2101
-    description = "Api Request Validation Error: File Not Valid"
+class ApiRequestMissingParamValidationException(ApiRequestValidationException):
+    _code = 1201
+    _description = "Request parameters not valid"
+
+    def __init__(self, invalid_param):
+        if invalid_param:
+            self._description = "Missing request parameter '{}'".format(
+                invalid_param)
+        message = "Exception {}: {}".format(self._code, self._description)
+        Exception.__init__(self, message)
 
 
-class ApiInvalidAccessControlHeader(ApiException):
-    code = 1001
-    description = "Invalid Origin Request Headers"
+class ApiRequestFileMissingValidationException(ApiRequestValidationException):
+    _code = 1202
+    _description = "File Not Valid"
+
+    def __init__(self, file_name):
+        if file_name:
+            self._description = "File {} Missing".format(file_name)
+        message = "Exception {}: {}".format(self._code, self._description)
+        Exception.__init__(self, message)
+
+
+class ApiInvalidAccessControlHeader(ApiRequestValidationException):
+    _code = 1203
+    _description = "Invalid Origin Request Headers"

@@ -21,7 +21,7 @@ class Envelope(object):
     def set_error_from_exception(self, e):
         if not (isinstance(e, Exception)):
             raise InvalidEnvelopeParamException
-        return self.append_error(e.code, e.description)
+        return self.append_error(e.get_code(), e.get_description())
 
     def get_errors(self):
         return self._errors

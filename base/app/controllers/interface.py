@@ -3,7 +3,7 @@ Simple example of controller
 """
 
 from flask import Blueprint
-from base.app.controllers import accepts_mimetypes
+from base.app.models.api.validators import accepts_mimetypes
 
 
 interface = Blueprint('interface', __name__, url_prefix='/')

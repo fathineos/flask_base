@@ -73,8 +73,8 @@ class TestEnvelope(TestCase):
         api_validation_exc = ApiException()
         envelope.set_error_from_exception(api_validation_exc)
 
-        self.assertEquals([{"code": api_validation_exc.code,
-                            "message": api_validation_exc.description}],
+        self.assertEquals([{"code": api_validation_exc.get_code(),
+                            "message": api_validation_exc.get_description()}],
                           envelope.get_errors())
 
     def testJsonifyReturnProperResult(self):
