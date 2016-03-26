@@ -1,11 +1,13 @@
 from functools import wraps
+from sys import getsizeof
 from flask import g, request, current_app, make_response
 from base.lib.exceptions import InterfaceException
 from werkzeug.exceptions import UnsupportedMediaType
 from base.lib.exceptions import MutableException
 from .exceptions import ApiRequestValidationException,\
     ApiRequestMissingParamValidationException, ApiInvalidAccessControlHeader,\
-    ApiRequestFileMissingValidationException
+    ApiRequestFileMissingValidationException,\
+    ApiRequestFileTooBinValidationException
 from . import get_response_from_result, get_parameters_by_method
 
 
@@ -52,6 +54,18 @@ class FileValidator(IValidator):
         except KeyError:
             raise ApiRequestFileMissingValidationException(
                 file_name=self.file_name)
+
+
+class FileTooBigValidator(IValidator):
+    def __init__(self, file_name, size_limit):
+        self.file_name = file_name
+        self.size_limit = size_limit
+
+    def execute(self):
+        FileValidator(file_name=self.file_name)
+        f = request.files[self.file_name]
+        if getsizeof(f.stream) > self.size_limit:
+            raise ApiRequestFileTooBinValidationException(self.size_limit)
 
 
 def access_cross_origin_resource_sharing_validator(f):

@@ -1,11 +1,14 @@
 from flask import g
 from StringIO import StringIO
+from io import BytesIO
+from sys import getsizeof
 from werkzeug.exceptions import UnsupportedMediaType
 from base.lib.exceptions import MutableException
 from base.lib.testing import ControllerTestCase
 from base.app.models.api.validators import accepts_mimetypes,\
     validate_request, ParamsValidator, _get_allowed_cross_origin_domain,\
-    access_cross_origin_resource_sharing_validator, FileValidator
+    access_cross_origin_resource_sharing_validator, FileValidator,\
+    FileTooBigValidator
 from base.app.models.api.exceptions import ApiInvalidAccessControlHeader
 
 
@@ -23,7 +26,7 @@ class TestParamsValidators(ControllerTestCase):
         def dummyFunc():
             return "foo", 201, {"header": "bar"}
 
-        with self.assertRaises(MutableException) as cm:
+        with self.assertRaises(MutableException):
             dummyFunc()
 
     def test_params_validator(self):
@@ -37,7 +40,6 @@ class TestParamsValidators(ControllerTestCase):
         @validate_request(ParamsValidator(required_params=['foo', 'bar']))
         def dummyFunc():
             return "foo", 201, {"header": "bar"}
-
 
         self.assertIsNotNone(dummyFunc())
 
@@ -58,7 +60,7 @@ class TestParamsValidators(ControllerTestCase):
         excp = cm.exception
         self.assertEquals(excp.get_description(), "File transactions_csv Missing")
 
-    def test_validate_request_raises_proper_exception_when_file_name(self):
+    def test_file_validator(self):
         self.app_request_context.pop()
         self.app_request_context = self.app.test_request_context(
             content_type="multipart/form-data",
@@ -71,6 +73,42 @@ class TestParamsValidators(ControllerTestCase):
             return "foo", 201, {"header": "bar"}
 
         self.assertIsNotNone(dummyFunc())
+
+    def test_file_too_big_validator_raises_proper_exception(self):
+        self.app_request_context.pop()
+        self.app_request_context = self.app.test_request_context(
+            content_type="multipart/form-data",
+            method="POST",
+            data={'transactions_csv': (StringIO('this is longer than 10'), 'transactions_csv')})
+        self.app_request_context.push()
+        size_limit = getsizeof(BytesIO(""))
+
+        @validate_request(FileTooBigValidator(
+            file_name='transactions_csv', size_limit=size_limit))
+        def dummyFunc():
+            return "foo", 201, {"header": "bar"}
+
+        with self.assertRaises(MutableException) as cm:
+            dummyFunc()
+
+        excp = cm.exception
+        self.assertEquals(excp.get_description(), "File larger than {} bytes".format(size_limit))
+
+    def test_file_too_big_validator(self):
+        self.app_request_context.pop()
+        self.app_request_context = self.app.test_request_context(
+            content_type="multipart/form-data",
+            method="POST",
+            data={'transactions_csv': (StringIO('short'), 'transactions_csv')})
+        self.app_request_context.push()
+
+        @validate_request(FileTooBigValidator(
+            file_name='transactions_csv', size_limit=1000))
+        def dummyFunc():
+            return "foo", 201, {"header": "bar"}
+
+        self.assertIsNotNone(dummyFunc())
+
 
     def test_accepts_mimetypes_decorator_raises_proper_exception_when_unsupported_type(self):
         @accepts_mimetypes(supported_types=["foo"])

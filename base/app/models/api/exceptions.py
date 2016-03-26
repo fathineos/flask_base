@@ -36,7 +36,7 @@ class ApiRequestMissingParamValidationException(ApiRequestValidationException):
     _code = 1201
     _description = "Request parameters not valid"
 
-    def __init__(self, invalid_param):
+    def __init__(self, invalid_param=None):
         if invalid_param:
             self._description = "Missing request parameter '{}'".format(
                 invalid_param)
@@ -48,9 +48,20 @@ class ApiRequestFileMissingValidationException(ApiRequestValidationException):
     _code = 1202
     _description = "File Not Valid"
 
-    def __init__(self, file_name):
+    def __init__(self, file_name=None):
         if file_name:
             self._description = "File {} Missing".format(file_name)
+        message = "Exception {}: {}".format(self._code, self._description)
+        Exception.__init__(self, message)
+
+
+class ApiRequestFileTooBinValidationException(ApiRequestValidationException):
+    _code = 1202
+    _description = "File too big"
+
+    def __init__(self, size_limit=None):
+        if size_limit:
+            self._description = "File larger than {} bytes".format(size_limit)
         message = "Exception {}: {}".format(self._code, self._description)
         Exception.__init__(self, message)
 
