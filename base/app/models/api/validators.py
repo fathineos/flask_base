@@ -12,8 +12,10 @@ from . import get_response_from_result, get_parameters_by_method
 
 
 def validate_request(*validators):
-    """Decorator function to wrap the flask api endpoints. Provide validators
-    that extend IValidator interface as arguments"""
+    """Decorator function to wrap the flask api endpoints. Should perform
+    validators bounded in request context. Arguments should be instances of
+    IValidator. If any validator raises exception, it will be wrapped in a
+    mutable exception"""
     def validator_decorator(func):
         @wraps(func)
         def __wrapper(*args, **kwargs):
@@ -30,6 +32,23 @@ def validate_request(*validators):
 class IValidator(object):
     def execute(self):
         raise InterfaceException()
+
+
+class Validate(IValidator):
+    """Decorator function execute multiple validators. Arguments should be
+    instances of IValidator. If any validator raises exception, it will be
+    wrapped in a mutable exception"""
+    def __init__(self, *validators):
+        print validators
+        self.validators = validators
+
+    def execute(self):
+        try:
+            for validator in self.validators:
+                validator.execute()
+        except ApiRequestValidationException, e:
+            raise MutableException(e.get_code(), e.get_description())
+        return True
 
 
 class ParamsValidator(IValidator):

@@ -8,8 +8,9 @@ from base.lib.testing import ControllerTestCase
 from base.app.models.api.validators import accepts_mimetypes,\
     validate_request, ParamsValidator, _get_allowed_cross_origin_domain,\
     access_cross_origin_resource_sharing_validator, FileValidator,\
-    FileTooBigValidator
-from base.app.models.api.exceptions import ApiInvalidAccessControlHeader
+    FileTooBigValidator, Validate, IValidator
+from base.app.models.api.exceptions import ApiInvalidAccessControlHeader,\
+    ApiRequestValidationException
 
 
 class TestParamsValidators(ControllerTestCase):
@@ -59,6 +60,33 @@ class TestParamsValidators(ControllerTestCase):
 
         excp = cm.exception
         self.assertEquals(excp.get_description(), "File transactions_csv Missing")
+
+    def test_validate_raises_proper_exception_when_a_validator_fails(self):
+        class ValidatorA(IValidator):
+            def __init__(self):
+                pass
+
+            def execute(self):
+                raise ApiRequestValidationException()
+
+        with self.assertRaises(MutableException) as cm:
+            v = Validate(ValidatorA())
+            v.execute()
+
+        exc = cm.exception
+        self.assertEquals(ApiRequestValidationException().get_code(), exc.get_code())
+
+
+    def test_validate_return_true_when_validators_not_raise_exception(self):
+        class ValidatorA(IValidator):
+            def __init__(self):
+                pass
+
+            def execute(self):
+                return True
+
+        v = Validate(ValidatorA())
+        self.assertTrue(v.execute())
 
     def test_file_validator(self):
         self.app_request_context.pop()
