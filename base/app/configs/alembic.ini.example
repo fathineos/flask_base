@@ -1,7 +1,7 @@
 # A generic, single database configuration.
 
 [alembic]
-sqlalchemy.url = mysql://#DATABASE_USER#:#DATABASE_PASS#@#DATABASE_HOST#/#DATABASE_NAME#
+sqlalchemy.url = mysql+pymysql://#DATABASE_USER#:#DATABASE_PASS#@#DATABASE_HOST#/#DATABASE_NAME#
 
 # path to migration scripts
 script_location = /opt/venv/src/base/base/db

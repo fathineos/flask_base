@@ -1,3 +1,3 @@
-SQLALCHEMY_DATABASE_URI = 'mysql://root:root@127.0.0.1/base'
+SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://root:root@127.0.0.1/base'
 SQLALCHEMY_POOL_RECYCLE = 160
 DATABASE_CONNECT_OPTIONS = {}
