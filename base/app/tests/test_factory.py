@@ -1,5 +1,5 @@
 from sys import prefix, modules
-from os import environ, remove
+from os import environ
 from os.path import abspath, dirname, split
 from flask_sqlalchemy import SQLAlchemy
 from flask import Flask
@@ -8,7 +8,7 @@ from base.lib.testing import TestCase
 from base.factory import create_app, _get_environment, _init_sql_db,\
     _get_basepath, _register_app_loggers,\
     ENVIRONMENT_DEVELOPMENT, ENVIRONMENT_TESTING
-from base.app.controllers.front_controller import blueprints
+from base.app.controllers.blueprints import blueprints
 
 
 BASEPATH = split(split(abspath(dirname(__file__)))[0])[0]

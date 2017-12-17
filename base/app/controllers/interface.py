@@ -1,15 +1,11 @@
-"""
-Simple example of controller
-"""
+"""Absolute minimum service endpoints"""
 
 from flask import Blueprint
-from base.app.models.api.validators import accepts_mimetypes
 
 
-interface = Blueprint('interface', __name__, url_prefix='/')
+interface = Blueprint('interface', __name__)
 
 
-@interface.route('/', methods=['GET'])
-@accepts_mimetypes(supported_types=["application/json"])
+@interface.route('/health', methods=['GET'])
 def index():
-    return 'This is a example controller.', 203
+    return 'Service is up', 200

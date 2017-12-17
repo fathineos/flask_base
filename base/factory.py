@@ -57,7 +57,7 @@ def create_app(package_name, basepath=None, forced_environment=None):
     _register_app_loggers(app)
     _register_additional_packages(app)
     _register_exception_error_handler(app)
-    from base.app.controllers.front_controller import blueprints
+    from base.app.controllers.blueprints import blueprints
     _register_blueprints(app, blueprints)
     return app
 
